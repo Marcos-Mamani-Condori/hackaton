@@ -39,17 +39,22 @@ const Home = () => {
                     />
                 </div>
             </div>
-            <div className="flex flex-row mx-2 md:mx-10 lg:mx-[10rem] space-x-4">
-                <div className="flex-1">
+            <div className="flex flex-row mb-4 mx-2 md:mx-10 lg:mx-[10rem] space-x-4">
+                <div className="flex-1 max-h-[300px] overflow-y-auto">
                     <UsersCounter />
                 </div>
                 
                 <div className="flex-1 max-h-[300px] overflow-y-auto">
                     <ActivityCalendar activities={activities} /> 
                 </div>
+                <a href="/voice">Clikeame</a>
             </div>
-            
-            
+                
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
         </div>
     );
 }
