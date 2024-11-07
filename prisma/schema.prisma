@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")  // Usa env para acceder a la variable de entorno
+}
+
+model activities {
+  id    Int      @id @default(autoincrement())
+  title String
+  date  DateTime
+}
+
+model announcements {
+  id         Int       @id @default(autoincrement())
+  title      String
+  image_url  String
+  date       DateTime?
+  created_at DateTime  @default(now())
+}
+
+model answers {
+  id            Int             @id @default(autoincrement())
+  text          String
+  image_url     String?         
+  created_at    DateTime        @default(now())
+  user_id       Int
+  message_id    Int
+  messages      messages        @relation(fields: [message_id], references: [id])
+  users         users           @relation(fields: [user_id], references: [id])
+  likes         likes[]
+  notifications notifications[]
+}
+
+model bot_messages {
+  id         Int      @id @default(autoincrement())
+  text       String
+  image_url  String?  
+  created_at DateTime @default(now())
+  user_id    Int
+  users      users    @relation(fields: [user_id], references: [id])
+}
+
+model likes {
+  id            Int             @id @default(autoincrement())
+  user_id       Int?
+  message_id    Int?
+  answer_id     Int?
+  created_at    DateTime        @default(now())
+  answers       answers?        @relation(fields: [answer_id], references: [id])
+  messages      messages?       @relation(fields: [message_id], references: [id])
+  users         users?          @relation(fields: [user_id], references: [id])
+  notifications notifications[]
+}
+
+model major_subjects {
+  id         Int       @id @default(autoincrement())
+  major_id   Int?
+  subject_id Int?
+  majors     majors?   @relation(fields: [major_id], references: [id])
+  subjects   subjects? @relation(fields: [subject_id], references: [id])
+}
+
+model majors {
+  id             Int              @id @default(autoincrement())
+  name           String
+  major_subjects major_subjects[]
+}
+
+model messages {
+  id         Int       @id @default(autoincrement())
+  text       String
+  image_url  String?  
+  created_at DateTime @default(now())
+  user_id    Int
+  answers    answers[]
+  likes      likes[]
+  users      users     @relation(fields: [user_id], references: [id])
+}
+
+model notifications {
+  id         Int      @id @default(autoincrement())
+  user_id    Int?
+  like_id    Int?
+  answer_id  Int?
+  seen       Boolean? @default(false)
+  created_at DateTime @default(now())
+  answers    answers? @relation(fields: [answer_id], references: [id])
+  likes      likes?   @relation(fields: [like_id], references: [id])
+  users      users?   @relation(fields: [user_id], references: [id])
+}
+
+model subject_tasks {
+  id          Int           @id @default(autoincrement())
+  title       String?       
+  description String?
+  due_date    DateTime
+  subject_id  Int?
+  subjects    subjects?     @relation(fields: [subject_id], references: [id])
+  task_images task_images[]
+}
+
+model subject_users {
+  id         Int       @id @default(autoincrement())
+  user_id    Int?
+  subject_id Int?
+  subjects   subjects? @relation(fields: [subject_id], references: [id])
+  users      users?    @relation(fields: [user_id], references: [id])
+}
+
+model subjects {
+  id             Int              @id @default(autoincrement())
+  name           String
+  professor      String?          
+  major_subjects major_subjects[]
+  subject_tasks  subject_tasks[]
+  subject_users  subject_users[]
+}
+
+model task_images {
+  id              Int           @id @default(autoincrement())
+  url             String
+  subject_task_id Int
+  subject_tasks   subject_tasks @relation(fields: [subject_task_id], references: [id])
+}
+
+model users {
+  id                  Int             @id @default(autoincrement())
+  password            String
+  name          String          @unique
+  email         String          @unique
+  profile_picture_url String?         
+  major               String?         
+  role                String?         
+  created_at          DateTime        @default(now())
+  answers             answers[]
+  bot_messages        bot_messages[]
+  likes               likes[]
+  messages            messages[]
+  notifications       notifications[]
+  subject_users       subject_users[]
+}   
