@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 import ImageUploader from '@/components/ImageUploader';
 import { useSession } from 'next-auth/react';
 import { useSpeechRecognition } from "react-speech-kit";
-
+import InputRecorder from '@/components/InputRecorder';
 function InputBox({ className }) {
     const { data: session } = useSession();
     const pathname = usePathname();
@@ -16,7 +16,8 @@ function InputBox({ className }) {
     // Contextos para los diferentes casos
     const botContext = useContext(BotContext);
     const chatContext = useContext(ChatGlobalContext);
-    
+    const inputSource = pathname === "/bot" ? "inputBot" : "inputChat"; // Determina el source
+
     const { setInput, input, isSending, handleSend, setfilePath } = pathname === "/bot" ? botContext : chatContext;
     const { inputRef } = useInputFocus();
 
@@ -80,6 +81,7 @@ function InputBox({ className }) {
                 targetContext = chatContext;
                 targetContext.handleSend(input, filePath);
                 console.log("Mensaje enviado al chat:", { text: input, img: filePath });
+                setInput('');
                 setFilePathState(''); // Limpiar filePath
                 setFile(null); // Limpiar el archivo
             }
@@ -98,7 +100,7 @@ function InputBox({ className }) {
         <div>
             {file && (
                 <div className="flex items-center mb-2">
-                    <img src={URL.createObjectURL(file)} alt="Previsualización" className="w-16 h-16 object-cover rounded mr-2" />
+                    <image src={URL.createObjectURL(file)} alt="Previsualización" className="w-16 h-16 object-cover rounded mr-2" />
                     <span className="text-gray-700">{file.name}</span>
                 </div>
             )}
@@ -117,7 +119,7 @@ function InputBox({ className }) {
                 
                 {session && session.user.role === 'premium' && pathname !== "/bot" && (
                     // Muestra el cargador de imágenes solo si inputSource es inputChat
-                    <ImageUploader setFilePath={setFilePathState} file={file} setFile={setFile} />
+                    <ImageUploader setFilePath={setFilePathState} file={file} setFile={setFile} inputSource={inputSource} />
                 )}
                 
                 <button
@@ -127,7 +129,12 @@ function InputBox({ className }) {
                 >
                     Enviar
                 </button>
-                
+                {pathname === '/chat' && (
+                   <>
+                                   <InputRecorder />
+              
+                   </>
+                )}
                 {pathname === '/bot' && (
                     <button
                         type="button"
