@@ -7,6 +7,7 @@ import ChatGlobalContext from "@/context/ChatGlobalContext";
 import { usePathname } from 'next/navigation'; 
 import ImageUploader from '@/components/ImageUploader';
 import { useSession } from 'next-auth/react';
+import { useSpeechRecognition } from "react-speech-kit";
 
 function InputBox({ className }) {
     const { data: session } = useSession();
@@ -61,7 +62,12 @@ function InputBox({ className }) {
             console.log("El input está vacío, no se enviará.");
         }
     };
- 
+    const { listen,stop } = useSpeechRecognition({
+        onResult: (result) => {
+          setInput(result);
+        },
+    });
+
     return (
         <div>
             {file && (
@@ -87,14 +93,24 @@ function InputBox({ className }) {
                     // Muestra el cargador de imágenes solo si inputSource es inputChat
                     <ImageUploader setFilePath={setFilePath} file={file} setFile={setFile} inputSource={inputSource} />
                 )}
-
-                <button
+                            <button
+                                type="submit"
+                                disabled={isSending}
+                                className={`text-white px-4 ml-2 py-2 rounded ${isSending ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
+                            >
+                                Enviar
+                            </button>
+                            {pathname==='/bot'&&(
+                    <button
                     type="submit"
-                    disabled={isSending}
-                    className={`text-white px-4 ml-2 py-2 rounded ${isSending ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
-                >
-                    Enviar
-                </button>
+                    className={`text-white px-4 ml-2 py-2 rounded bg-blue-500 hover:bg-blue-600`}
+                    onClick={listen}
+                    onMouseLeave={stop}
+                    >
+                        🎤
+                    </button>
+                )
+                }
             </form>
         </div>
     );
