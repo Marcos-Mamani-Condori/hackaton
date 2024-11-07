@@ -9,10 +9,7 @@ const BotProvider = ({ children }) => {
     const [isSending, setIsSending] = useState(false);
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([]);
-    const [filePath, setfilePath] = useState(null); // Estado para fileIndex
-    useEffect(() => {
-        console.log("Valor de filePath actualizado en global:", filePath);
-    }, [filePath]);
+    
     const handleSend = () => {
         if (input.trim()) {
             const userMsg = {
@@ -24,6 +21,8 @@ const BotProvider = ({ children }) => {
             setInput("");
             setIsSending(true);
         }
+          // Log del mensaje que se está enviando
+
         sendMessageBot(input)
             .then((serverResponse) => {
                 const serverMsg = {
@@ -47,8 +46,7 @@ const BotProvider = ({ children }) => {
             });
     };
 
-    const data = { messages, isSending, handleSend, setInput, input, filePath,
-        setfilePath, };
+    const data = { messages, isSending, handleSend, setInput, input };
 
     return (
         <BotContext.Provider value={data}>

@@ -27,9 +27,11 @@ function InputBox({ className }) {
     }, [isSending, inputRef]);
 
     useEffect(() => {
-        setfilePath(filePath);
-        console.log("Valor de filePath pasado en input:", filePath);
-    }, [filePath]);
+        if (inputSource === "inputChat" && typeof setfilePath === "function") {
+            setfilePath(filePath);
+            console.log("Valor de filePath pasado en input:", filePath);
+        }
+    }, [filePath, inputSource, setfilePath]);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
@@ -44,16 +46,22 @@ function InputBox({ className }) {
         console.log("Ruta de archivo:", filePath);
 
         if (input.trim()) {
-            handleSend(input, filePath);
-            console.log("Mensaje enviado:", { text: input, img: filePath });
-            setInput('');
-            setFilePath('');
-            setFile(null); // Limpiar el archivo
+            if (inputSource === "inputBot") {
+                handleSend(input); // Envía solo el texto si es la ruta del bot
+                console.log("Mensaje enviado solo con texto:", { text: input });
+            } else {
+                handleSend(input, filePath); // Envía el texto y filePath en otras rutas
+                console.log("Mensaje enviado:", { text: input, img: filePath });
+                setInput('');
+                setFilePath('');
+                setFile(null); // Limpiar el archivo
+            }
+            
         } else {
             console.log("El input está vacío, no se enviará.");
         }
     };
-
+ 
     return (
         <div>
             {file && (
@@ -74,20 +82,19 @@ function InputBox({ className }) {
                     rows={1}
                     className="flex-1 px-4 py-2 border border-gray-600 rounded focus:outline-none focus:ring focus:border-blue-300 resize-none"
                 />
-               
-               {session && session.user.role === 'premium' && ( // Verifica el rol de usuario
-                    <>
-                        <ImageUploader setFilePath={setFilePath} file={file} setFile={setFile} inputSource={inputSource} />
-                        
-                    </>
+
+                {session && session.user.role === 'premium' && inputSource === "inputChat" && (
+                    // Muestra el cargador de imágenes solo si inputSource es inputChat
+                    <ImageUploader setFilePath={setFilePath} file={file} setFile={setFile} inputSource={inputSource} />
                 )}
-                            <button
-                                type="submit"
-                                disabled={isSending}
-                                className={`text-white px-4 ml-2 py-2 rounded ${isSending ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
-                            >
-                                Enviar
-                            </button>
+
+                <button
+                    type="submit"
+                    disabled={isSending}
+                    className={`text-white px-4 ml-2 py-2 rounded ${isSending ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
+                >
+                    Enviar
+                </button>
             </form>
         </div>
     );
