@@ -9,42 +9,52 @@ const BotProvider = ({ children }) => {
     const [isSending, setIsSending] = useState(false);
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([]);
-    
+
     const handleSend = () => {
         if (input.trim()) {
+            // Si el mensaje contiene '@bolibot:', lo eliminamos
+            const sanitizedInput = input.replace('@bolibot:', '').trim();
+
             const userMsg = {
                 id: messages.length + 1,
-                text: input,
+                text: sanitizedInput,  // Usamos el input sin '@bolibot:'
                 sender: "user",
             };
             setMessages([...messages, userMsg]);
-            setInput("");
+            setInput(""); // Limpiar el input después de enviar el mensaje
             setIsSending(true);
-        }
-          // Log del mensaje que se está enviando
 
-        sendMessageBot(input)
-            .then((serverResponse) => {
-                const serverMsg = {
-                    id: messages.length + 2,
-                    text: serverResponse,
-                    sender: "server",
-                };
-                setMessages(prevMessages => [...prevMessages, serverMsg]);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                const serverMsg = {
-                    id: messages.length + 2,
-                    text: 'Error: No se pudo obtener respuesta del servidor',
-                    sender: "server",
-                };
-                setMessages(prevMessages => [...prevMessages, serverMsg]);
-            })
-            .finally(() => {
-                setIsSending(false);
-            });
+            // Enviar el mensaje limpio (sin '@bolibot:')
+            sendMessageBot(sanitizedInput)
+                .then((serverResponse) => {
+                    const serverMsg = {
+                        id: messages.length + 2,
+                        text: serverResponse,
+                        sender: "server",
+                    };
+                    setMessages(prevMessages => [...prevMessages, serverMsg]);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    const serverMsg = {
+                        id: messages.length + 2,
+                        text: 'Error: No se pudo obtener respuesta del servidor',
+                        sender: "server",
+                    };
+                    setMessages(prevMessages => [...prevMessages, serverMsg]);
+                })
+                .finally(() => {
+                    setIsSending(false);
+                });
+        }
     };
+
+    // Usamos useEffect para hacer el envío automático si el input tiene '@bolibot:'
+    useEffect(() => {
+        if (input.includes('@bolibot:') && !isSending) {
+            handleSend(); // Enviar el mensaje si contiene '@bolibot:'
+        }
+    }, [input, isSending]); // Se ejecuta cuando `input` cambie
 
     const data = { messages, isSending, handleSend, setInput, input };
 

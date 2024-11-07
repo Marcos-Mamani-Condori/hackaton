@@ -11,14 +11,16 @@ import { useSpeechRecognition } from "react-speech-kit";
 
 function InputBox({ className }) {
     const { data: session } = useSession();
-
     const pathname = usePathname();
-    const contexts = pathname === "/bot" ? BotContext : ChatGlobalContext;
-    const inputSource = pathname === "/bot" ? "inputBot" : "inputChat"; // Determina el source
-    const { setInput, input, isSending, handleSend, setfilePath } = useContext(contexts);
+    
+    // Contextos para los diferentes casos
+    const botContext = useContext(BotContext);
+    const chatContext = useContext(ChatGlobalContext);
+    
+    const { setInput, input, isSending, handleSend, setfilePath } = pathname === "/bot" ? botContext : chatContext;
     const { inputRef } = useInputFocus();
 
-    const [filePath, setFilePath] = useState('');
+    const [filePath, setFilePathState] = useState(''); 
     const [file, setFile] = useState(null);
 
     useEffect(() => {
@@ -28,11 +30,11 @@ function InputBox({ className }) {
     }, [isSending, inputRef]);
 
     useEffect(() => {
-        if (inputSource === "inputChat" && typeof setfilePath === "function") {
+        if (pathname !== "/bot" && typeof setfilePath === "function") {
             setfilePath(filePath);
             console.log("Valor de filePath pasado en input:", filePath);
         }
-    }, [filePath, inputSource, setfilePath]);
+    }, [filePath, pathname, setfilePath]);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
@@ -42,29 +44,53 @@ function InputBox({ className }) {
     };
 
     const handleSubmit = (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         console.log("Enviando input:", input);
         console.log("Ruta de archivo:", filePath);
 
         if (input.trim()) {
-            if (inputSource === "inputBot") {
-                handleSend(input); // Envía solo el texto si es la ruta del bot
-                console.log("Mensaje enviado solo con texto:", { text: input });
+            let targetContext;
+
+            if (pathname === "/bot") {
+                // Si estamos en la ruta /bot, enviamos al contexto del bot
+                targetContext = botContext;
+                targetContext.handleSend(input.trim()); // Enviar el mensaje al bot
+                console.log("Mensaje enviado al bot:", { text: input.trim() });
+
+            } else if (pathname === "/chat" && input.includes("@bolibot:")) {
+                // Enviar el mensaje solo al bot desde /chat
+                console.log("Detectado @bolibot: en /chat con input:", input);
+                
+                // Usamos el valor de `input` directamente desde el `chatContext`
+                const chatInput = chatContext.input.trim();
+            
+                if (chatInput) {
+
+                    // Actualizamos el input en botContext y enviamos el mensaje
+                    botContext.setInput(chatInput);
+                    console.log("Mensaje enviado al bot desde /chat:", { text: chatInput });
+
+                    // Limpiar el input en el chatContext después de enviar
+                    chatContext.setInput(''); 
+                } else {
+                    console.log("El input en /chat está vacío, no se enviará.");
+                }
             } else {
-                handleSend(input, filePath); // Envía el texto y filePath en otras rutas
-                console.log("Mensaje enviado:", { text: input, img: filePath });
-                setInput('');
-                setFilePath('');
+                // En cualquier otro caso, enviamos al chat global
+                targetContext = chatContext;
+                targetContext.handleSend(input, filePath);
+                console.log("Mensaje enviado al chat:", { text: input, img: filePath });
+                setFilePathState(''); // Limpiar filePath
                 setFile(null); // Limpiar el archivo
             }
-            
         } else {
             console.log("El input está vacío, no se enviará.");
         }
     };
-    const { listen,stop } = useSpeechRecognition({
+
+    const { listen, stop } = useSpeechRecognition({
         onResult: (result) => {
-          setInput(result);
+            setInput(result);
         },
     });
 
@@ -88,29 +114,30 @@ function InputBox({ className }) {
                     rows={1}
                     className="flex-1 px-4 py-2 border border-gray-600 rounded focus:outline-none focus:ring focus:border-blue-300 resize-none"
                 />
-
-                {session && session.user.role === 'premium' && inputSource === "inputChat" && (
+                
+                {session && session.user.role === 'premium' && pathname !== "/bot" && (
                     // Muestra el cargador de imágenes solo si inputSource es inputChat
-                    <ImageUploader setFilePath={setFilePath} file={file} setFile={setFile} inputSource={inputSource} />
+                    <ImageUploader setFilePath={setFilePathState} file={file} setFile={setFile} />
                 )}
-                            <button
-                                type="submit"
-                                disabled={isSending}
-                                className={`text-white px-4 ml-2 py-2 rounded ${isSending ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
-                            >
-                                Enviar
-                            </button>
-                            {pathname==='/bot'&&(
-                    <button
+                
+                <button
                     type="submit"
-                    className={`text-white px-4 ml-2 py-2 rounded bg-blue-500 hover:bg-blue-600`}
-                    onClick={listen}
-                    onMouseLeave={stop}
+                    disabled={isSending}
+                    className={`text-white px-4 ml-2 py-2 rounded ${isSending ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
+                >
+                    Enviar
+                </button>
+                
+                {pathname === '/bot' && (
+                    <button
+                        type="button"
+                        className={`text-white px-4 ml-2 py-2 rounded bg-blue-500 hover:bg-blue-600`}
+                        onClick={listen}
+                        onMouseLeave={stop}
                     >
                         🎤
                     </button>
-                )
-                }
+                )}
             </form>
         </div>
     );
