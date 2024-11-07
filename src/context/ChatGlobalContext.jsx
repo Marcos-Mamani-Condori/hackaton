@@ -20,11 +20,11 @@ const ChatGlobalProvider = ({ children }) => {
     useEffect(() => {
         console.log("Valor de filePath actualizado en global:", filePath);
     }, [filePath]);
-        // Inicializar el socket solo una vez
-        if (!socketRef.current) {
-            socketRef.current = getSocket();
+    // Inicializar el socket solo una vez
+    if (!socketRef.current) {
+        socketRef.current = getSocket();
 
-            if (socketRef.current) {
+        if (socketRef.current) {
             socketRef.current.on('connect', () => {
                 console.log('Conexión WebSocket establecida con el ID:', socketRef.current.id);
             });
@@ -45,8 +45,8 @@ const ChatGlobalProvider = ({ children }) => {
 
             socketRef.current.on('new_pregunta', (pregunta) => {
                 setMessages((prevMessages) => [...prevMessages, pregunta]);
-                 // Actualizar el offset para reflejar el nuevo mensaje
-            setOffset((prevOffset) => prevOffset + 1);
+                // Actualizar el offset para reflejar el nuevo mensaje
+                setOffset((prevOffset) => prevOffset + 1);
             });
 
             socketRef.current.on('more_preguntas', (data) => {
@@ -60,7 +60,8 @@ const ChatGlobalProvider = ({ children }) => {
             socketRef.current.onAny((event, ...args) => {
                 console.debug(`Evento recibido: ${event}`, args);
             });
-        }}
+        }
+    }
 
     const handleSend = () => {
         console.log("Preparando para enviar...");
@@ -82,23 +83,23 @@ const ChatGlobalProvider = ({ children }) => {
             return;
         }
 
-       
+
         socketRef.current.emit('send_pregunta', {
             message: input,
             img: filePath,
             token: accessToken
-             
+
         }, (response) => {
             if (response && response.error) {
                 setIsRegisterModalOpen(true);
                 setIsLoged(false);
-                
+
                 console.error('Error al enviar mensaje al servidor:', response.error);
             } else if (response) {
                 console.log('Mensaje enviado exitosamente al chat global:', response);
             }
         });
-console.log("enviadooooo" +filePath)
+        console.log("enviadooooo" + filePath)
         setIsSending(false);
     };
 

@@ -4,9 +4,13 @@ import React, { useContext, useEffect, useState } from "react";
 import BotContext from "@/context/BotContext";
 import { useInputFocus } from "@/context/InputFocusContext";
 import ChatGlobalContext from "@/context/ChatGlobalContext";
-import { usePathname } from 'next/navigation'; 
+import { usePathname } from 'next/navigation';
 import ImageUploader from '@/components/ImageUploader';
+
+import InputRecorder from '@/components/InputRecorder';
+
 import { useSession } from 'next-auth/react';
+import Image from "next/image";
 
 function InputBox({ className }) {
     const { data: session } = useSession();
@@ -39,7 +43,7 @@ function InputBox({ className }) {
     };
 
     const handleSubmit = (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         console.log("Enviando input:", input);
         console.log("Ruta de archivo:", filePath);
 
@@ -58,7 +62,7 @@ function InputBox({ className }) {
         <div>
             {file && (
                 <div className="flex items-center mb-2">
-                    <img src={URL.createObjectURL(file)} alt="Previsualización" className="w-16 h-16 object-cover rounded mr-2" />
+                    <Image src={URL.createObjectURL(file)} alt="Previsualización" className="w-16 h-16 object-cover rounded mr-2" />
                     <span className="text-gray-700">{file.name}</span>
                 </div>
             )}
@@ -74,20 +78,24 @@ function InputBox({ className }) {
                     rows={1}
                     className="flex-1 px-4 py-2 border border-gray-600 rounded focus:outline-none focus:ring focus:border-blue-300 resize-none"
                 />
-               
-               {session && session.user.role === 'premium' && ( // Verifica el rol de usuario
+
+                {session && session.user.role === 'premium' && ( // Verifica el rol de usuario
                     <>
                         <ImageUploader setFilePath={setFilePath} file={file} setFile={setFile} inputSource={inputSource} />
-                        
                     </>
                 )}
-                            <button
-                                type="submit"
-                                disabled={isSending}
-                                className={`text-white px-4 ml-2 py-2 rounded ${isSending ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
-                            >
-                                Enviar
-                            </button>
+
+                    
+                {/* Aqui colocar el componente de audio */}
+                <InputRecorder />
+
+                <button
+                    type="submit"
+                    disabled={isSending}
+                    className={`text-white px-4 ml-2 py-2 rounded ${isSending ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
+                >
+                    Enviar
+                </button>
             </form>
         </div>
     );
