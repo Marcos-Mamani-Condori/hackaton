@@ -13,7 +13,7 @@ const labelBaseStyles = () => {
 
 function RegisterPage({ onClose, setIsLoged, toggleLoginRegister }) {
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const { handleSpeak } = useContext(AccesibilityContext);
+  const { handleSpeak, accesibility } = useContext(AccesibilityContext);
   const router = useRouter();
   const [error, setError] = useState(null);
   const speakTimeoutRef = useRef(null); // Ref to store the timeout ID
@@ -38,29 +38,31 @@ function RegisterPage({ onClose, setIsLoged, toggleLoginRegister }) {
 
     if (res.ok) {
       alert("Registro exitoso");
-      handleSpeak("Tu cuenta ha sido creada exitosamente");
+      if (accesibility) handleSpeak("Tu cuenta ha sido creada exitosamente"); // Only if accesibility is true
       onClose();
     } else {
       const errorData = await res.json();
       console.error("Error en el registro:", errorData.message);
       setError(errorData.message);
-      handleSpeak("Por favor revisa tus datos ");
+      if (accesibility) handleSpeak("Por favor revisa tus datos "); // Only if accesibility is true
     }
   });
 
   const handleFocus = (e, fieldName) => {
     const value = e.target.value;
 
-    // Announce the component and field name
-    handleSpeak(`Estás en el componente de registro, en el campo: ${fieldName}`);
+    // Announce the component and field name if accesibility is true
+    if (accesibility) handleSpeak(`Estás en el componente de registro, en el campo: ${fieldName}`);
 
     // Clear any existing timeout
     clearTimeout(speakTimeoutRef.current);
 
-    // Set a new timeout to speak the value after 3 seconds
-    speakTimeoutRef.current = setTimeout(() => {
-      handleSpeak(`El valor actual en ${fieldName} es: ${value}`);
-    }, 3000);
+    // Set a new timeout to speak the value after 3 seconds if accesibility is true
+    if (accesibility) {
+      speakTimeoutRef.current = setTimeout(() => {
+        handleSpeak(`El valor actual en ${fieldName} es: ${value}`);
+      }, 3000);
+    }
   };
 
   const handleBlur = () => {
