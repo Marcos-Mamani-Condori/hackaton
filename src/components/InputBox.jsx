@@ -58,9 +58,9 @@ function InputBox({ className }) {
             console.log("El input está vacío, no se enviará.");
         }
     };
-    const { listen,stop } = useSpeechRecognition({
+    const { listen, stop } = useSpeechRecognition({
         onResult: (result) => {
-          setInput(result);
+            setInput(result);
         },
     });
 
@@ -91,7 +91,7 @@ function InputBox({ className }) {
                     </>
                 )}
 
-                    
+
                 {/* Aqui colocar el componente de audio */}
                 <InputRecorder />
 
@@ -102,19 +102,13 @@ function InputBox({ className }) {
                 >
                     Enviar
                 </button>
-                <button
-                                type="submit"
-                                disabled={isSending}
-                                className={`text-white px-4 ml-2 py-2 rounded ${isSending ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
-                            >
-                                Enviar
-                            </button>
-                {pathname==='/bot'&&(
+            
+                {pathname === '/bot' && (
                     <button
-                    type="submit"
-                    className={`text-white px-4 ml-2 py-2 rounded bg-blue-500 hover:bg-blue-600`}
-                    onClick={listen}
-                    onMouseLeave={stop}
+                        type="submit"
+                        className={`text-white px-4 ml-2 py-2 rounded bg-blue-500 hover:bg-blue-600`}
+                        onClick={listen}
+                        onMouseLeave={stop}
                     >
                         🎤
                     </button>
