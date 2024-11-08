@@ -9,7 +9,7 @@ import ImageUploader from '@/components/ImageUploader';
 import { useSession } from 'next-auth/react';
 import useSpeechRecognition from "./hook/useSpeechRecognition"; 
 import InputRecorder from '@/components/InputRecorder';
-
+import Image from "next/image";
 function InputBox({ className }) {
     const { data: session } = useSession();
     const pathname = usePathname();
