@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
-// Configurar multer para recibir el archivo como buffer
+// Configuración de multer para almacenar el archivo como buffer
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
@@ -30,33 +30,21 @@ router.post("/upload-audio", upload.single("audio"), async (req, res) => {
     const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET);
     const userId = decoded.id;
 
+    // Ruta de la carpeta del usuario
     const userFolderPath = path.join(
       __dirname,
       "../../../public/uploads/audio",
       userId.toString()
     );
 
+    // Crear la carpeta si no existe
     if (!fs.existsSync(userFolderPath)) {
       fs.mkdirSync(userFolderPath, { recursive: true });
       console.log(`Carpeta creada: ${userFolderPath}`);
     }
 
-    // Obtener el siguiente número disponible para el archivo
-    const files = fs.readdirSync(userFolderPath);
-    let highestNumber = 0;
-
-    files.forEach(file => {
-      const match = file.match(/^audio(\d+)\.mp3$/);
-      if (match) {
-        const number = parseInt(match[1], 10);
-        if (number > highestNumber) {
-          highestNumber = number;
-        }
-      }
-    });
-
-    const nextNumber = highestNumber + 1;
-    const outputFileName = `audio${nextNumber}.mp3`;
+    // Nombre de archivo
+    const outputFileName = `audio.mp3`;
     const outputFilePath = path.join(userFolderPath, outputFileName);
 
     // Guardar el archivo de audio en el servidor

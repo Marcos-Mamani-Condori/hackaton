@@ -156,11 +156,11 @@ function InputBox({ className }) {
                     className="flex-1 px-4 py-2 border border-gray-600 rounded focus:outline-none focus:ring focus:border-blue-300 resize-none"
                 />
                 
-                {session && session.user.role === 'premium' && pathname !== "/bot" && (
-                    <ImageUploader setFilePath={setFilePathState} file={file} setFile={setFile} inputSource={inputSource} />
-                )}
+             
                  {pathname === '/chat' && (
                     <>
+                    <ImageUploader setFilePath={setFilePathState} file={file} setFile={setFile} inputSource={inputSource} />
+
                   <InputRecorder  setFilePath={setFilePathState} file={file} setFile={setFile}/>
                     </>
                 )}
