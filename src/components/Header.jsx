@@ -51,7 +51,7 @@ const Header = ({ className }) => {
             <div className="absolute left-1 hidden lg:block">
                 {session && (
                     <div>
-                        <span className="text-white px-3">Bienvenidos, {session.user.name}!</span>
+                        <span className="text-white px-3">Bienvenido, {session.user.name}!</span>
                         <button className="bg-white text-black px-4 py-2 rounded-md" onClick={() => signOut()}>
                             Cerrar Sesión
                         </button>
