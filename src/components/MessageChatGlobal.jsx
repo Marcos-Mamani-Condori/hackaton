@@ -1,13 +1,14 @@
 'use client';
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useContext } from "react";
 import LikeButton from '@/components/LikeButton';
 import Image from "next/image";
 import { useSession } from 'next-auth/react';
+import AccesibilityContext from "@/context/AccesibilityContext";
 
 function SCMessage({ text, sender, id, image_url, profileUrl }) {
     const { data: session } = useSession();
     const isUser = sender === 'user';
-
+    const{handleSpeak,accesibility}=useContext(AccesibilityContext);
     const { username, major, date } = sender;
     const [profileImage, setProfileImage] = useState('/uploads/default.png'); // Inicializar con imagen por defecto
 
@@ -52,6 +53,8 @@ function SCMessage({ text, sender, id, image_url, profileUrl }) {
         }
     };
 
+    
+
     return (
         <div className={`flex flex-col ${isUser ? 'bg-blue-100 text-right' : 'bg-gray-100 text-left'} rounded-lg p-4`}>
             <div className="flex items-center mb-2">
@@ -62,7 +65,7 @@ function SCMessage({ text, sender, id, image_url, profileUrl }) {
                     height={64}
                     className="rounded-full"
                 />
-                <div className="ml-2">
+                <div onMouseLeave={()=>handleSpeak("")} onMouseEnter={()=>{if(accesibility) handleSpeak(`Estas sobre el mensaje enviado por el usuario ${username} que se envio ${obtenerTiempoTranscurrido()} que dice lo siguiente ${text}. Mensaje terminado`)}} className="ml-2">
                     <span className="font-semibold text-sm">{username}</span>
                     <span className="text-xs text-gray-500">{obtenerTiempoTranscurrido()}</span>
                     <span className="block text-xs text-gray-500">{major}</span>
