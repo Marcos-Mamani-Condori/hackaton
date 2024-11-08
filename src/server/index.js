@@ -40,7 +40,7 @@ app.prepare().then(() => {
         req.session.nonce = nonce;
 
         const authorizationUrl = client.authorizationUrl({
-            scope: 'openid profile fecha_nacimiento email celular offline_access',
+            scope: 'openid profile email fecha_nacimiento celular offline_access',
             state,
             nonce,
             redirect_uri: 'http://localhost:3000/api/auth/callback', // Asegúrate de que sea correcto
