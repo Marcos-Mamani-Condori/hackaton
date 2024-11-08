@@ -8,7 +8,7 @@ import ImageUploader from '@/components/ImageUploader';
 import { useSession } from 'next-auth/react';
 import Image from "next/image";
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-
+import InputRecorder from '@/components/InputRecorder';
 function InputBox({ className }) {
     const { data: session } = useSession();
     const pathname = usePathname();
@@ -25,6 +25,7 @@ function InputBox({ className }) {
     const [file, setFile] = useState(null);
 
     const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
+    const [isRecording, setIsRecording] = useState(false); // Estado para controlar la grabación
 
     // Actualizar el input con la transcripción, sin concatenar.
     useEffect(() => {
@@ -100,9 +101,16 @@ function InputBox({ className }) {
         }
     };
 
-    const startListening = () => {
+    // Iniciar o detener la grabación de voz
+    const toggleListening = () => {
         if (browserSupportsSpeechRecognition) {
-            SpeechRecognition.startListening({ continuous: true, language: 'es-ES' });
+            if (isRecording) {
+                SpeechRecognition.stopListening(); // Detener la grabación
+                setIsRecording(false);
+            } else {
+                SpeechRecognition.startListening({ continuous: true, language: 'es-ES' }); // Iniciar la grabación
+                setIsRecording(true);
+            }
         } else {
             alert("Tu navegador no soporta el reconocimiento de voz.");
         }
@@ -143,7 +151,11 @@ function InputBox({ className }) {
                 {session && session.user.role === 'premium' && pathname !== "/bot" && (
                     <ImageUploader setFilePath={setFilePathState} file={file} setFile={setFile} inputSource={inputSource} />
                 )}
-                
+                 {pathname === '/chat' && (
+                    <>
+                  <InputRecorder/>
+                    </>
+                )}
                 <button
                     type="submit"
                     disabled={isSending}
@@ -155,14 +167,13 @@ function InputBox({ className }) {
                 {pathname === '/bot' && (
                     <button
                         type="button"
-                        className={`text-white px-4 ml-2 py-2 rounded bg-blue-500 hover:bg-blue-600`}
-                        onClick={startListening}
+                        className={`text-white px-4 ml-2 py-2 rounded ${isRecording ? 'bg-red-500' : 'bg-blue-500'} hover:bg-blue-600`}
+                        onClick={toggleListening}
                     >
-                        🎤 Grabar
+                        {isRecording ? 'Detener Grabación' : '🎤 Grabar'}
                     </button>
                 )}
 
-             
             </form>
         </div>
     );
