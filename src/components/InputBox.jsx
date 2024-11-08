@@ -113,7 +113,7 @@ function InputBox({ className }) {
                 setFile(null); 
             }
         } else {
-            console.log("El input está vacío, no se enviará.");
+            alert("El input está vacío, no se enviará.");
         }
     };
     const { listen, stop } = useSpeechRecognition({

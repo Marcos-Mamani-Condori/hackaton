@@ -6,6 +6,10 @@ import { useState } from "react";
 
 import ActivityCalendar from "@/components/ActivityCalendar";
 
+
+import CommentReply from '@/components/ComentReply';
+
+
 const activities = [
     { day: "20", month: "Oct", title: "primer evento" },
     { day: "28", month: "Oct", title: "segundo evento" },
@@ -13,6 +17,29 @@ const activities = [
     { day: "04", month: "Nov", title: "cuarto evento" },
     { day: "25", month: "Nov", title: "quinto evento" },
 ];
+
+
+const comment = {
+    author: 'Juan Pérez',
+    authorAvatar: '/default-avatar.png',  // Puedes cambiar la URL del avatar
+    text: 'Este es un comentario de ejemplo.',
+    createdAt: 'Hace 2 horas',
+    replies: [
+      {
+        id: 1,
+        author: 'Ana Gómez',
+        text: '¡Estoy de acuerdo con tu comentario!',
+        createdAt: 'Hace 1 hora',
+      },
+      {
+        id: 2,
+        author: 'Carlos Ruiz',
+        text: 'Buena observación.',
+        createdAt: 'Hace 30 minutos',
+      },
+    ],
+  };
+
 
 const Home = () => {
 
@@ -34,6 +61,10 @@ const Home = () => {
                     <ActivityCalendar activities={activities} />
                 </div>
             </div>
+
+            <div className="max-w-xl mx-auto mt-10">
+      <CommentReply comment={comment} />
+    </div>
 
             <br /><br /><br />
             <br /><br /><br />
