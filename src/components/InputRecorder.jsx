@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+
 const MySwal = withReactContent(Swal);
+
 function AudioRecorder() {
     const [isRecording, setIsRecording] = useState(false);
     const [time, setTime] = useState(0);
     const [audioUrl, setAudioUrl] = useState(null);
     const [audioBlob, setAudioBlob] = useState(null);
     const [recorder, setRecorder] = useState(null);
+
     useEffect(() => {
         let intervalId;
+
         if (isRecording) {
             intervalId = setInterval(() => {
                 setTime((prevTime) => prevTime + 1);
@@ -18,8 +22,10 @@ function AudioRecorder() {
             clearInterval(intervalId);
             setTime(0); // Reinicia el contador cuando no está grabando
         }
+
         return () => clearInterval(intervalId);
     }, [isRecording]);
+
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -46,16 +52,19 @@ function AudioRecorder() {
             console.error("Error al obtener permisos de micrófono: ", err);
         }
     };
+
     const stopRecording = () => {
         setIsRecording(false);
         if (recorder) {
             recorder.stop();
         }
     };
+
     const handleSend = () => {
         // Aquí puedes manejar el envío del audio
         console.log("Audio enviado");
     };
+
     return (
         <div className="audio-recorder flex flex-row items-center space-y-4 ml-4">
             <button
@@ -65,15 +74,16 @@ function AudioRecorder() {
             >
                 <div
                     className="w-3 h-3 rounded-full bg-white"
-                    
                 ></div>
             </button>
+
             {/* Temporizador */}
             {isRecording && (
                 <div className="timer text-lg font-bold pb-4 px-3 flex flex-row  align-text-bottom items-center">
                     {Math.floor(time / 60)}:{String(time % 60).padStart(2, "0")}
                 </div>
             )}
+
             {/* Botón de Enviar activado solo cuando hay una grabación */}
             <button
                 onClick={handleSend}
@@ -86,4 +96,5 @@ function AudioRecorder() {
         </div>
     );
 }
+
 export default AudioRecorder;
