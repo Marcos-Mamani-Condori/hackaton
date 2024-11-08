@@ -5,6 +5,10 @@ const UsersCounter = () => {
   // ELIMINAR DATOS QUEMADOS CUANDO SE LOGRE LA COMUNICACION
   const [departamentos, setDepartamentos] = useState([
     {
+      "id": 2,
+      "departamento": "tarija"
+    },
+    {
       "id": 3,
       "departamento": "cochabamba"
     },
