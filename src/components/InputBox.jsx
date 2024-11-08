@@ -25,6 +25,9 @@ function InputBox({ className }) {
     const [filePath, setFilePath] = useState('');
     const [file, setFile] = useState(null);
 
+
+    const [isRecording, setIsRecording] = useState(false); // Estado para controlar la grabación
+
     useEffect(() => {
         if (inputRef.current && !isSending) {
             inputRef.current.focus();
@@ -64,6 +67,25 @@ function InputBox({ className }) {
         },
     });
 
+    ////////////////////
+    // Iniciar o detener la grabación de voz
+    const toggleListening = () => {
+        if (browserSupportsSpeechRecognition) {
+            if (isRecording) {
+                SpeechRecognition.stopListening(); // Detener la grabación
+                setIsRecording(false);
+            } else {
+                SpeechRecognition.startListening({ continuous: true, language: 'es-ES' }); // Iniciar la grabación
+                setIsRecording(true);
+            }
+        } else {
+            alert("Tu navegador no soporta el reconocimiento de voz.");
+        }
+    };
+
+    /////////////////////
+
+
     return (
         <div>
             {file && (
@@ -102,9 +124,9 @@ function InputBox({ className }) {
                 >
                     Enviar
                 </button>
-            
+
                 {pathname === '/bot' && (
-                    <button
+                    <> <button
                         type="submit"
                         className={`text-white px-4 ml-2 py-2 rounded bg-blue-500 hover:bg-blue-600`}
                         onClick={listen}
@@ -112,6 +134,14 @@ function InputBox({ className }) {
                     >
                         🎤
                     </button>
+
+                        {/*<button
+                            type="button"
+                            className={`text-white px-4 ml-2 py-2 rounded ${isRecording ? 'bg-red-500' : 'bg-blue-500'} hover:bg-blue-600`}
+                            onClick={toggleListening}
+                        >
+                            {isRecording ? 'Detener Grabación' : '🎤 Grabar'}
+                        </button>*/} </>
                 )
                 }
             </form>
