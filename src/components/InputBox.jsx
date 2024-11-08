@@ -1,16 +1,13 @@
-'use client';
-
+'use client'
 import React, { useContext, useEffect, useState } from "react";
 import BotContext from "@/context/BotContext";
 import { useInputFocus } from "@/context/InputFocusContext";
 import ChatGlobalContext from "@/context/ChatGlobalContext";
 import { usePathname } from 'next/navigation';
 import ImageUploader from '@/components/ImageUploader';
-
-import InputRecorder from '@/components/InputRecorder';
-
 import { useSession } from 'next-auth/react';
 import Image from "next/image";
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 function InputBox({ className }) {
     const { data: session } = useSession();
@@ -26,6 +23,15 @@ function InputBox({ className }) {
 
     const [filePath, setFilePathState] = useState(''); 
     const [file, setFile] = useState(null);
+
+    const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
+
+    // Actualizar el input con la transcripción, sin concatenar.
+    useEffect(() => {
+        if (transcript) {
+            setInput(transcript); // Reemplazar todo el input con la transcripción
+        }
+    }, [transcript, setInput]);
 
     useEffect(() => {
         if (inputRef.current && !isSending) {
@@ -60,7 +66,8 @@ function InputBox({ className }) {
                 targetContext = botContext;
                 targetContext.handleSend(input.trim()); // Enviar el mensaje al bot
                 console.log("Mensaje enviado al bot:", { text: input.trim() });
-
+                setInput(''); // Limpiar el input después de enviar
+                resetTranscript();
             } else if (pathname === "/chat" && input.includes("@bolibot:")) {
                 // Enviar el mensaje solo al bot desde /chat
                 console.log("Detectado @bolibot: en /chat con input:", input);
@@ -84,37 +91,49 @@ function InputBox({ className }) {
                 targetContext = chatContext;
                 targetContext.handleSend(input, filePath);
                 console.log("Mensaje enviado al chat:", { text: input, img: filePath });
-                setInput('');
+                setInput(''); // Limpiar el input después de enviar
                 setFilePathState(''); // Limpiar filePath
-                setFile(null); // Limpiar el archivo
+                setFile(null); // Limpiar archivo
             }
         } else {
             console.log("El input está vacío, no se enviará.");
         }
     };
 
-    
+    const startListening = () => {
+        if (browserSupportsSpeechRecognition) {
+            SpeechRecognition.startListening({ continuous: true, language: 'es-ES' });
+        } else {
+            alert("Tu navegador no soporta el reconocimiento de voz.");
+        }
+    };
+
+    // Cambiar la transcripción, se borra al presionar el botón
+    const handleClearTranscript = () => {
+        resetTranscript();
+        setInput(''); // Limpiar también el input cuando se borra la transcripción
+    };
+
     return (
         <div>
             {file && (
                 <div className="flex items-center mb-2">
-                  <Image
-  src={URL.createObjectURL(file)}
-  alt="Previsualización"
-  className="object-cover rounded mr-2"
-  width={64}   // Ancho de la imagen
-  height={64}  // Alto de la imagen
-/>
+                    <Image
+                        src={URL.createObjectURL(file)}
+                        alt="Previsualización"
+                        className="object-cover rounded mr-2"
+                        width={64}   // Ancho de la imagen
+                        height={64}  // Alto de la imagen
+                    />
                     <span className="text-gray-700">{file.name}</span>
                 </div>
             )}
             <form className={`${className} flex items-center justify-center`} onSubmit={handleSubmit}>
                 <textarea
                     ref={inputRef}
-                    value={input}
+                    value={input || transcript} // Usa el transcrito si está disponible
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    autoComplete="off"
                     placeholder={isSending ? "Esperando respuesta..." : "Escribe un mensaje..."}
                     disabled={isSending}
                     rows={1}
@@ -122,7 +141,6 @@ function InputBox({ className }) {
                 />
                 
                 {session && session.user.role === 'premium' && pathname !== "/bot" && (
-                    // Muestra el cargador de imágenes solo si inputSource es inputChat
                     <ImageUploader setFilePath={setFilePathState} file={file} setFile={setFile} inputSource={inputSource} />
                 )}
                 
@@ -133,12 +151,17 @@ function InputBox({ className }) {
                 >
                     Enviar
                 </button>
-                {pathname === '/chat' && (
-                   <>
-                                   <InputRecorder />
-              
-                   </>
+
+                {pathname === '/bot' && (
+                    <button
+                        type="button"
+                        className={`text-white px-4 ml-2 py-2 rounded bg-blue-500 hover:bg-blue-600`}
+                        onClick={startListening}
+                    >
+                        🎤 Grabar
+                    </button>
                 )}
+
              
             </form>
         </div>
