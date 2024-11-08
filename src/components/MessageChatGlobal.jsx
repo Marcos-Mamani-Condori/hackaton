@@ -113,7 +113,7 @@ function SCMessage({ text, sender, id, image_url, profileUrl, comment }) {
                     {replies.map((reply) => (
                         <div key={reply.id} className="flex items-start mb-3">
                             <img
-                                src="/default-avatar.png"
+                                src={reply.authorAvatar || '/default-avatar.png'} // Usa la imagen personalizada si existe
                                 alt={reply.author}
                                 className="w-8 h-8 rounded-full mr-3"
                             />
