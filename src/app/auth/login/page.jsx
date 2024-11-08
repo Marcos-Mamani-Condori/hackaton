@@ -57,7 +57,7 @@ const LoginPage = ({ onClose, setIsLoged, toggleLoginRegister }) => {
         {error && ( 
           <p className="bg-red-500 text-lg text-white p-3 rounded">{error}</p>
         )}
-        <h1 className="text-slate-200 font-bold text-4xl mb-4">LoyoApp</h1>
+        <h1 className="text-slate-200 font-bold text-4xl mb-4">BOLIAPP</h1>
         <form onSubmit={onSubmit}> 
           <label htmlFor="nombre" className="text-slate-500 mb-2 block text-sm">
             Correo:

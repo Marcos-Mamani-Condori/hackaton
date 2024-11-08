@@ -6,6 +6,7 @@ const registerSockets = require('./sockets/socketchat');
 const registerLikes = require('./sockets/socketlike');
 const imageUploadRouter = require('./routes/imageUpload');
 const { router: connectedUsersRouter, handleusers } = require('./routes/connectedUsers');
+const audioUploadRouter = require('./routes/audioUpload'); // Importa el router para subir audio
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -16,6 +17,7 @@ app.prepare().then(() => {
 
     server.use('/api', imageUploadRouter);
     server.use('/api/connected-users', connectedUsersRouter); 
+    server.use('/api', audioUploadRouter); 
 
     const httpServer = http.createServer(server);
     const io = new Server(httpServer);

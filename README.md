@@ -5,6 +5,8 @@ para borrar la base de datos q se bajo de la rama git rm --cached prisma/dev.db
 npx prisma migrate dev --name init
 ## Getting Started
 
+npm i react-speech-kit --force
+
 First, run the development server:
 
 ```bash

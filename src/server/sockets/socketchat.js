@@ -55,12 +55,16 @@ const registerSockets = (socket, io)=> {
                 const userId = decoded.id;
                 const messageText = data.message;
                 const filePath = data.img;
-             
+
+
+                
+                
+                
                 const newMessage = await prisma.messages.create({
                     data: {
                         user_id: userId,
                         text: messageText,
-                        image_url: filePath,
+                    image_url: filePath,
 
                         created_at: new Date(),
                     },
@@ -86,7 +90,7 @@ const registerSockets = (socket, io)=> {
                     major: user.major,
                     date: newMessage.created_at,
                     image_url: filePath,
-                    
+
                 };
 
                 console.log("Emitiendo 'new_pregunta' con el mensaje formateado:", formattedMessage);
