@@ -14,13 +14,11 @@ const upload = multer({ storage });
 router.post("/upload-audio", upload.single("audio"), async (req, res) => {
   console.log("Iniciando procesamiento de audio...");
 
-  // Verificar si se subió un archivo
   if (!req.file) {
     console.log("Error: No se subió ningún archivo");
     return res.status(400).json({ error: "No se subió ningún archivo" });
   }
 
-  // Verificar si se proporcionó el token de autenticación
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     console.log("Error: No se proporcionó token de autenticación");
@@ -30,28 +28,35 @@ router.post("/upload-audio", upload.single("audio"), async (req, res) => {
   const token = authHeader.split(" ")[1];
   try {
     const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET);
-    console.log("Token verificado, datos decodificados:", decoded);
-
     const userId = decoded.id;
-    const inputSource = req.body.inputSource;
-    console.log("Datos recibidos desde el frontend:");
-    console.log("Archivo de audio:", req.file);
-    console.log("Token de usuario:", token);
-    console.log("inputSource:", inputSource);
 
-    // Crear la carpeta del usuario si no existe
     const userFolderPath = path.join(
       __dirname,
       "../../../public/uploads/audio",
       userId.toString()
     );
+
     if (!fs.existsSync(userFolderPath)) {
       fs.mkdirSync(userFolderPath, { recursive: true });
       console.log(`Carpeta creada: ${userFolderPath}`);
     }
 
-    // Generar un nombre de archivo único en la carpeta del usuario
-    const outputFileName = `${Date.now()}.mp3`;
+    // Obtener el siguiente número disponible para el archivo
+    const files = fs.readdirSync(userFolderPath);
+    let highestNumber = 0;
+
+    files.forEach(file => {
+      const match = file.match(/^audio(\d+)\.mp3$/);
+      if (match) {
+        const number = parseInt(match[1], 10);
+        if (number > highestNumber) {
+          highestNumber = number;
+        }
+      }
+    });
+
+    const nextNumber = highestNumber + 1;
+    const outputFileName = `audio${nextNumber}.mp3`;
     const outputFilePath = path.join(userFolderPath, outputFileName);
 
     // Guardar el archivo de audio en el servidor
