@@ -6,12 +6,13 @@ import withReactContent from "sweetalert2-react-content";
 
 const MySwal = withReactContent(Swal);
 
-function AudioUploader({ setFilePath }) { 
+function InputRecorder({ setFilePath, file, setFile }) { 
     const { data: session } = useSession();
     const [isRecording, setIsRecording] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [time, setTime] = useState(0);
     const [recorder, setRecorder] = useState(null);
+    const [audioUrl, setAudioUrl] = useState(null); // Para la previsualización de audio
 
     useEffect(() => {
         let intervalId;
@@ -37,7 +38,10 @@ function AudioUploader({ setFilePath }) {
             mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
             mediaRecorder.onstop = async () => {
                 const audioBlob = new Blob(chunks, { type: "audio/wav" });
-                await handleUpload(audioBlob);
+                setFile(audioBlob); // Guarda el archivo en el estado file
+                const audioUrl = URL.createObjectURL(audioBlob); // Genera la URL para previsualización
+                setAudioUrl(audioUrl);
+                await handleUpload(audioBlob); // Sube el archivo
             };
 
             mediaRecorder.start();
@@ -74,7 +78,7 @@ function AudioUploader({ setFilePath }) {
     const handleUpload = async (audioBlob) => {
         const formData = new FormData();
         formData.append('audio', audioBlob);
-        formData.append('inputSource', "audio"); // Enviar siempre inputSource como "audio"
+        formData.append('inputSource', "audio");
 
         try {
             const response = await fetch('/api/upload-audio', {
@@ -88,7 +92,7 @@ function AudioUploader({ setFilePath }) {
             const data = await response.json();
             if (response.ok) {
                 console.log("Audio subido correctamente:", data);
-                setFilePath(data.filePath);
+                setFilePath(data.filePath); // Almacena la ruta en el estado global
             } else {
                 console.error("Error al subir el audio:", data.error);
             }
@@ -122,8 +126,11 @@ function AudioUploader({ setFilePath }) {
             >
                 Finalizar
             </button>
+
+            {/* Reproductor de audio para previsualización */}
+         
         </div>
     );
 }
 
-export default AudioUploader;
+export default InputRecorder;

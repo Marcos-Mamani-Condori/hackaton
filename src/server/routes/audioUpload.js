@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
-// Configurar multer para recibir el archivo como buffer
+// Configuración de multer para almacenar el archivo como buffer
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
@@ -14,13 +14,11 @@ const upload = multer({ storage });
 router.post("/upload-audio", upload.single("audio"), async (req, res) => {
   console.log("Iniciando procesamiento de audio...");
 
-  // Verificar si se subió un archivo
   if (!req.file) {
     console.log("Error: No se subió ningún archivo");
     return res.status(400).json({ error: "No se subió ningún archivo" });
   }
 
-  // Verificar si se proporcionó el token de autenticación
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     console.log("Error: No se proporcionó token de autenticación");
@@ -30,28 +28,23 @@ router.post("/upload-audio", upload.single("audio"), async (req, res) => {
   const token = authHeader.split(" ")[1];
   try {
     const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET);
-    console.log("Token verificado, datos decodificados:", decoded);
-
     const userId = decoded.id;
-    const inputSource = req.body.inputSource;
-    console.log("Datos recibidos desde el frontend:");
-    console.log("Archivo de audio:", req.file);
-    console.log("Token de usuario:", token);
-    console.log("inputSource:", inputSource);
 
-    // Crear la carpeta del usuario si no existe
+    // Ruta de la carpeta del usuario
     const userFolderPath = path.join(
       __dirname,
       "../../../public/uploads/audio",
       userId.toString()
     );
+
+    // Crear la carpeta si no existe
     if (!fs.existsSync(userFolderPath)) {
       fs.mkdirSync(userFolderPath, { recursive: true });
       console.log(`Carpeta creada: ${userFolderPath}`);
     }
 
-    // Generar un nombre de archivo único en la carpeta del usuario
-    const outputFileName = `${Date.now()}.mp3`;
+    // Nombre de archivo
+    const outputFileName = `audio.mp3`;
     const outputFilePath = path.join(userFolderPath, outputFileName);
 
     // Guardar el archivo de audio en el servidor

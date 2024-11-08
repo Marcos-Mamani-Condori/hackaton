@@ -128,17 +128,25 @@ function InputBox({ className }) {
     return (
         <div>
             {file && (
-                <div className="flex items-center mb-2">
-                    <Image
-                        src={URL.createObjectURL(file)}
-                        alt="Previsualización"
-                        className="object-cover rounded mr-2"
-                        width={64}   // Ancho de la imagen
-                        height={64}  // Alto de la imagen
-                    />
-                    <span className="text-gray-700">{file.name}</span>
-                </div>
-            )}
+    <div className="flex items-center mb-2">
+        {file.type.startsWith("image/") && (
+            <Image
+                src={URL.createObjectURL(file)}
+                alt="Previsualización"
+                className="object-cover rounded mr-2"
+                width={64}   // Ancho de la imagen
+                height={64}  // Alto de la imagen
+            />
+        )}
+        {file.type.startsWith("audio/") && (
+            <audio controls className="mr-2">
+                <source src={URL.createObjectURL(file)} type={file.type} />
+                Tu navegador no soporta la reproducción de audio.
+            </audio>
+        )}
+        <span className="text-gray-700">{file.name}</span>
+    </div>
+)}
             <form className={`${className} flex items-center justify-center`} onSubmit={handleSubmit}>
                 <textarea
                     ref={inputRef}
@@ -151,12 +159,12 @@ function InputBox({ className }) {
                     className="flex-1 px-4 py-2 border border-gray-600 rounded focus:outline-none focus:ring focus:border-blue-300 resize-none"
                 />
                 
-                {session && session.user.role === 'premium' && pathname !== "/bot" && (
-                    <ImageUploader setFilePath={setFilePathState} file={file} setFile={setFile} inputSource={inputSource} />
-                )}
+             
                  {pathname === '/chat' && (
                     <>
-                  <InputRecorder/>
+                    <ImageUploader setFilePath={setFilePathState} file={file} setFile={setFile} inputSource={inputSource} />
+
+                  <InputRecorder  setFilePath={setFilePathState} file={file} setFile={setFile}/>
                     </>
                 )}
                 

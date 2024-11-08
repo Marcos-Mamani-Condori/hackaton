@@ -69,8 +69,8 @@ const ImageUploader = ({ setFilePath, file, setFile, inputSource }) => {
     alt="Seleccionar imagen" 
     onClick={() => document.getElementById('file-upload').click()} 
     className="cursor-pointer"
-    width={50} // Ancho en píxeles
-    height={50} // Alto en píxeles
+    width={80} 
+    height={80} 
 />
 
         </div>
