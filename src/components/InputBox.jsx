@@ -100,7 +100,13 @@ function InputBox({ className }) {
             console.log("El input está vacío, no se enviará.");
         }
     };
+    const { listen, stop } = useSpeechRecognition({
+        onResult: (result) => {
+            setInput(result);
+        },
+    });
 
+    ////////////////////
     // Iniciar o detener la grabación de voz
     const toggleListening = () => {
         if (browserSupportsSpeechRecognition) {
@@ -116,11 +122,8 @@ function InputBox({ className }) {
         }
     };
 
-    // Cambiar la transcripción, se borra al presionar el botón
-    const handleClearTranscript = () => {
-        resetTranscript();
-        setInput(''); // Limpiar también el input cuando se borra la transcripción
-    };
+    /////////////////////
+
 
     return (
         <div>
@@ -156,6 +159,7 @@ function InputBox({ className }) {
                   <InputRecorder/>
                     </>
                 )}
+                
                 <button
                     type="submit"
                     disabled={isSending}
