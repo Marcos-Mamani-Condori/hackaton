@@ -8,9 +8,10 @@ import { usePathname } from 'next/navigation';
 import ImageUploader from '@/components/ImageUploader';
 import { useSession } from 'next-auth/react';
 import useSpeechRecognition from "./hook/useSpeechRecognition";
-
+import AccesibilityContext from "@/context/AccesibilityContext";
 function InputBox({ className }) {
     const { data: session } = useSession();
+    const{accesibility,handleSpeak}=useContext(AccesibilityContext);
     const {
         text, 
         isListening,
@@ -95,15 +96,15 @@ function InputBox({ className }) {
                     </>
                 )}
                 <button
-                                type="submit"
-                                disabled={isSending}
-                                className={`text-white px-4 ml-2 py-2 rounded ${isSending ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
-                            >
-                                Enviar
-                            </button>
+                type="submit"
+                disabled={isSending}
+                onMouseEnter={()=>{if (accesibility) handleSpeak(`Estas sobre el boton enviar el mensaje que enviaras sera el siguiente ${input}.Si estas seguro de enviarlo apreta este boton`)}}
+                className={`text-white px-4 ml-2 py-2 rounded ${isSending ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
+                >
+                Enviar
+                </button>
                 {pathname==='/bot'&&(
                     <button
-                    type="submit"
                     className={`text-white px-4 ml-2 py-2 rounded bg-blue-500 hover:bg-blue-600`}
                     onClick={startListening}
                     onMouseLeave={stopListening}

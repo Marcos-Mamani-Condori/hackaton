@@ -1,4 +1,3 @@
-//creando contexto
 import { createContext, useState } from "react";
 const AccesibilityContext=createContext();
 function AccesibilityProvider({children}){

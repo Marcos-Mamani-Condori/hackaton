@@ -1,8 +1,9 @@
 "use client"
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import chatbot_icon from '@/public/static/chatbot_icon.png';
 import user_icon from '@/public/static//user_icon.png';
 import Image from 'next/image';
+import AccesibilityContext from '@/context/AccesibilityContext';
 function* typewriterEffect(text) {
   for (let i = 0; i < text.length; i++) {
     yield text.slice(0, i + 1);
@@ -11,6 +12,7 @@ function* typewriterEffect(text) {
 
 function MessageBot({ text, sender }) {
   const isUser = sender === 'user';
+  const{handleSpeak,accesibility}=useContext(AccesibilityContext);
   const icon = isUser ? (
     <Image src={user_icon} alt="User Icon" width={24} height={24} className="mr-2" />
   ) : (
@@ -46,7 +48,7 @@ function MessageBot({ text, sender }) {
     <div className={`flex items-start ${isUser ? 'justify-end' : 'justify-start'} p-2`}>
       <div className="flex items-center">
         {icon}
-        <p className={`text-sm ${isUser ? 'mr-2 py-3 px-4 bg-blue-400 rounded-bl-3xl rounded-tl-3xl rounded-tr-xl text-white max-w-xl' : 'text-gray-700'}`}>
+        <p onMouseOver={()=>{if(accesibility) handleSpeak(text)}} className={`text-sm ${isUser ? 'mr-2 py-3 px-4 bg-blue-400 rounded-bl-3xl rounded-tl-3xl rounded-tr-xl text-white max-w-xl' : 'text-gray-700'}`}>
           {isUser ? text : serverMessage}
         </p>
       </div>
