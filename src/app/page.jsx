@@ -23,19 +23,19 @@ const comment = {
     author: 'Juan Pérez',
     authorAvatar: '/default-avatar.png',  // Puedes cambiar la URL del avatar
     text: 'Este es un comentario de ejemplo.',
-    createdAt: 'Hace 2 horas',
+    createdAt: 'Hace 1 horas',
     replies: [
       {
         id: 1,
         author: 'Ana Gómez',
         text: '¡Estoy de acuerdo con tu comentario!',
-        createdAt: 'Hace 1 hora',
+        createdAt: 'Hace 21 minutos ',
       },
       {
         id: 2,
         author: 'Carlos Ruiz',
         text: 'Buena observación.',
-        createdAt: 'Hace 30 minutos',
+        createdAt: 'Hace 19 minutos',   
       },
     ],
   };
@@ -52,6 +52,10 @@ const Home = () => {
                 setModalOpen={setIsModalOpen}
             />
 
+<div className="max-w-xl mx-auto mt-10">
+      <CommentReply comment={comment} />
+    </div>
+
             <div className="flex flex-col md:flex-row py-5 md:mx-10 lg:mx-[10rem] space-y-4 md:space-y-0 md:space-x-4">
                 <div className="flex-1 max-h-[477px] overflow-y-auto w-full">
                     <UsersCounter />
@@ -62,9 +66,7 @@ const Home = () => {
                 </div>
             </div>
 
-            <div className="max-w-xl mx-auto mt-10">
-      <CommentReply comment={comment} />
-    </div>
+            
 
             <br /><br /><br />
             <br /><br /><br />

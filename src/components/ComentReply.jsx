@@ -22,7 +22,7 @@ export default function CommentReply({ comment }) {
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-      {/*<div className="flex items-start">
+      <div className="flex items-start">
         <img
           src={comment.authorAvatar}
           alt={comment.author}
@@ -30,10 +30,13 @@ export default function CommentReply({ comment }) {
         />
         <div className="flex-1">
           <p className="font-bold">{comment.author}</p>
-          <p className="text-sm text-gray-600">{comment.createdAt}</p>
+          <span className="text-sm text-gray-600">{comment.createdAt}</span>
           <p className="mt-2">{comment.text}</p>
 
-          <button
+          
+        </div>
+
+        <button
             className="text-blue-500 mt-2 text-sm"
             onClick={() => setShowReplies(!showReplies)}
           >
@@ -41,7 +44,7 @@ export default function CommentReply({ comment }) {
           </button>
 
           {/* Respuestas */}
-          {/*showReplies && (
+          {showReplies && (
             <div className="mt-4 ml-6">
               {replies.map((reply) => (
                 <div key={reply.id} className="flex items-start mb-3">
@@ -58,7 +61,7 @@ export default function CommentReply({ comment }) {
                 </div>
               ))}
 
-              {/* Formulario para agregar una respuesta *//*}
+              {/* Formulario para agregar una respuesta */}
               <div className="flex items-center mt-3">
                 <input
                   type="text"
@@ -76,8 +79,7 @@ export default function CommentReply({ comment }) {
               </div>
             </div>
           )}
-        </div>
-      </div>*/}
+      </div>
     </div>
   );
 }

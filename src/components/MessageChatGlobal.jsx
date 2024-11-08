@@ -4,16 +4,39 @@ import LikeButton from '@/components/LikeButton';
 import Image from "next/image";
 import { useSession } from 'next-auth/react';
 
-function SCMessage({ text, sender, id, image_url, profileUrl }) {
+function SCMessage({ text, sender, id, image_url, profileUrl, comment }) {
     const { data: session } = useSession();
     const isUser = sender === 'user';
 
     const { username, major, date } = sender;
     const [profileImage, setProfileImage] = useState('/uploads/default.png'); // Inicializar con imagen por defecto
 
+
+
+    // Estado para las respuestas, el formulario de entrada y visibilidad de respuestas
+    const [replies, setReplies] = useState(comment.replies || []);
+    const [replyText, setReplyText] = useState('');
+    const [showReplies, setShowReplies] = useState(false);
+
+    // Maneja el envío de una nueva respuesta
+    const handleAddReply = () => {
+        if (replyText.trim()) {
+            const newReply = {
+                id: replies.length + 1,
+                author: 'Tú',
+                text: replyText,
+                createdAt: new Date().toLocaleString(),
+            };
+            setReplies([...replies, newReply]);
+            setReplyText('');
+        }
+    };
+
+
+
     useEffect(() => {
         console.log("Profile URL: ", profileUrl);
-        
+
         // Verificar si profileUrl es válido
         if (profileUrl && profileUrl.trim() !== 'no') {
             setProfileImage(profileUrl);
@@ -54,8 +77,8 @@ function SCMessage({ text, sender, id, image_url, profileUrl }) {
 
     return (
         <div className={`flex flex-col ${isUser ? 'bg-blue-100 text-right' : 'bg-gray-100 text-left'} rounded-lg p-4`}>
-            <div className="flex items-center mb-2">
-                <Image 
+            <div className="flex items-start pt-5 mb-2">
+                <Image
                     src={profileImage} // Forzar recarga
                     alt={`${username}'s profile`}
                     width={64}
@@ -66,16 +89,69 @@ function SCMessage({ text, sender, id, image_url, profileUrl }) {
                     <span className="font-semibold text-sm">{username}</span>
                     <span className="text-xs text-gray-500">{obtenerTiempoTranscurrido()}</span>
                     <span className="block text-xs text-gray-500">{major}</span>
+
+
+
+
+
                 </div>
             </div>
             <p className="text-sm">{text}</p>
+
+
+
+            <button
+                className="text-blue-500 mt-2 text-sm text-left"
+                onClick={() => setShowReplies(!showReplies)}
+            >
+                {showReplies ? 'Ocultar respuestas' : 'Ver respuestas'}
+            </button>
+
+            {/* Respuestas */}
+            {showReplies && (
+                <div className="mt-4 ml-6">
+                    {replies.map((reply) => (
+                        <div key={reply.id} className="flex items-start mb-3">
+                            <img
+                                src="/default-avatar.png"
+                                alt={reply.author}
+                                className="w-8 h-8 rounded-full mr-3"
+                            />
+                            <div>
+                                <p className="font-bold text-sm">{reply.author}</p>
+                                <p className="text-sm">{reply.text}</p>
+                                <p className="text-xs text-gray-500">{reply.createdAt}</p>
+                            </div>
+                        </div>
+                    ))}
+
+                    {/* Formulario para agregar una respuesta */}
+                    <div className="flex items-center mt-3">
+                        <input
+                            type="text"
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder="Escribe una respuesta..."
+                            className="flex-1 border rounded-lg px-3 py-2 text-sm mr-2"
+                        />
+                        <button
+                            onClick={handleAddReply}
+                            className="bg-blue-500 text-white text-sm px-4 py-2 rounded-lg"
+                        >
+                            Responder
+                        </button>
+                    </div>
+                </div>
+            )}
+
+
 
             {/* Mostrar el contenido si es una imagen o audio */}
             {image_url && image_url !== '' && (
                 <>
                     {/* Intentamos cargar la imagen, si falla, cargamos el audio */}
                     {image_url.match(/\.(jpg|jpeg|png|webp)$/i) ? (
-                        <Image 
+                        <Image
                             src={image_url} // Mostrar image_url si es una imagen
                             alt="Contenido de la imagen"
                             width={200}

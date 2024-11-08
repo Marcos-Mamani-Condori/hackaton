@@ -150,7 +150,7 @@ function RegisterPage({ onClose, setIsLoged, toggleLoginRegister }) {
             <span className="text-red-500 text-sm mb-2">{errors.confirmPassword.message}</span>
           )}
           <label htmlFor="carrera" className={labelBaseStyles()}>
-            Carrera:
+            Departamento:
           </label>
           <select
             {...register("major", {
@@ -161,21 +161,18 @@ function RegisterPage({ onClose, setIsLoged, toggleLoginRegister }) {
             })}
             className={inputBaseStyles()}
           >
-            <option value="">Selecciona tu carrera</option>
+            <option value="">Selecciona tu departamento</option>
             {[
-              'Adm. Empresas',
-              'Ing. Comercial',
-              'Ing. Financiera',
-              'Derecho',
-              'Comunicación',
-              'Ing. Civil',
-              'Ing. Industrial',
-              'Ing. Sistemas',
-              'Ing. Mecánica',
-              'Ing. Electrónica',
-              'Ing. Ambiental',
-              'Gastronomía',
-              'Veterinaria',
+              'Tarija.',
+              'Potosí.',
+              'Chuquisaca.',
+              'Pando.',
+              'Cochabamba.',
+              'Santa Cruz.',
+              'Beni.',
+              'Oruro.',
+              'La Paz.',
+              
             ].map((major) => (
               <option key={major} value={major}>
                 {major}

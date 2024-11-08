@@ -6,6 +6,32 @@ import  BotContext  from "@/context/BotContext"; // Importación de contexto de 
 import { usePathname } from 'next/navigation'; // Uso de usePathname de Next.js
 import ChatGlobalContext from "@/context/ChatGlobalContext";
 
+
+
+
+const comment = {
+author: 'Juan Pérez',
+authorAvatar: '/default-avatar.png',  // Puedes cambiar la URL del avatar
+text: 'Este es un comentario de ejemplo.',
+createdAt: 'Hace 1 horas',
+replies: [
+  {
+    id: 1,
+    author: 'Ana Gómez',
+    text: '¡Estoy de acuerdo con tu comentario!',
+    createdAt: 'Hace 21 minutos',
+  },
+  {
+    id: 2,
+    author: 'Carlos Ruiz',
+    text: 'Buena observación.',
+    createdAt: 'Hace 11 minutos',
+  },
+],
+};
+
+
+
 function ChatBox({ className }) {
     const messagesEndRef = useRef(null);
     const containerRef = useRef(null);
@@ -76,8 +102,8 @@ function ChatBox({ className }) {
 
             {messages.map((msg, index) => {
                 return pathname === "/bot" 
-                    ? <MessageBot key={index} text={msg.text} sender={msg.sender}  imageUrl={msg.image_url} profileUrl={msg.profile_url} />
-                    : <SCMessage key={index} text={msg.message} sender={msg} id={msg.id} image_url={msg.image_url} profileUrl={msg.profileUrl}  />;
+                    ? <MessageBot key={index} text={msg.text} sender={msg.sender}  imageUrl={msg.image_url} profileUrl={msg.profile_url}  />
+                    : <SCMessage key={index} text={msg.message} sender={msg} id={msg.id} image_url={msg.image_url} profileUrl={msg.profileUrl} comment={comment} />;
             })}
             <div ref={messagesEndRef} />
         </div>
