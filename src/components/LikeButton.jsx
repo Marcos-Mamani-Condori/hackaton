@@ -75,7 +75,7 @@ function LikeButton({ messageId, username }) {
   return (
     <div className="flex justify-start mt-2">
       <button onClick={handleLikeClick}>
-        <span className={hasLiked ? "bg-red-500 text-white p-2 rounded" : "bg-transparent"}>
+        <span className={hasLiked ? "bg-red-500 text-white pt-1 px-2 pb-2 rounded-md" : "bg-transparent"}>
           👍
         </span>
       </button>
