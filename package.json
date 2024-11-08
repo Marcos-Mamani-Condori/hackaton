@@ -7,7 +7,8 @@
     "dev:express": "node src/server/index.js",
     "build": "next build",
     "start": "NODE_ENV=production node server.js",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma": "npx prisma migrate dev --name init"
   },
   "dependencies": {
     "@eslint/config-array": "^0.18.0",
