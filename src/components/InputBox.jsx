@@ -10,21 +10,28 @@ import { useSession } from 'next-auth/react';
 import useSpeechRecognition from "./hook/useSpeechRecognition"; 
 import InputRecorder from '@/components/InputRecorder';
 import Image from "next/image";
+
 function InputBox({ className }) {
     const { data: session } = useSession();
     const pathname = usePathname();
     
-    // Contextos para los diferentes casos
     const botContext = useContext(BotContext);
     const chatContext = useContext(ChatGlobalContext);
     const inputSource = pathname === "/bot" ? "inputBot" : "inputChat"; 
 
     const { setInput, input, isSending, handleSend, setfilePath } = pathname === "/bot" ? botContext : chatContext;
     const { inputRef } = useInputFocus();
-    const [showSuggestion, setShowSuggestion] = useState(false); // Estado para el modal de sugerencia
+    const [showSuggestion, setShowSuggestion] = useState(false); 
 
     const [filePath, setFilePathState] = useState(''); 
     const [file, setFile] = useState(null);
+
+    // Sugerencias que se van a mostrar
+    const suggestions = [
+        "¿que es la AGETIC?",
+        "¿Qué es la ciudadanía digital?",
+        "¿Cómo obtengo un certificado de antecedentes?",
+    ];
 
     const {
         text, 
@@ -57,7 +64,7 @@ function InputBox({ className }) {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             if (showSuggestion) {
-                handleSuggestionSelect(); // Selecciona la sugerencia si el modal está abierto
+                handleSuggestionSelect(); 
             } else {
                 handleSubmit(e);
             }
@@ -67,16 +74,22 @@ function InputBox({ className }) {
     const handleInputChange = (e) => {
         setInput(e.target.value);
         if (e.target.value.includes("@") && !e.target.value.includes("@bolibot:")) {
-            setShowSuggestion(true); // Muestra el modal cuando se escribe "@"
+            setShowSuggestion(true); 
         } else {
-            setShowSuggestion(false); // Oculta el modal si ya se escribió "@bolibot:"
+            setShowSuggestion(false); 
         }
     };
 
     const handleSuggestionSelect = () => {
         setInput(input + "@bolibot: ");
         setShowSuggestion(false);
-        inputRef.current.focus(); // Enfoca el input para seguir escribiendo
+        inputRef.current.focus(); 
+    };
+
+    const handleSuggestionClick = (suggestion) => {
+        setInput(input + suggestion);  // Inserta la sugerencia en el input
+        setShowSuggestion(false);  // Oculta las sugerencias
+        inputRef.current.focus();  // Enfoca el campo de entrada
     };
 
     const handleSubmit = (e) => {
@@ -118,6 +131,22 @@ function InputBox({ className }) {
 
     return (
         <div className="relative">
+            {/* Renderizar botones de sugerencias encima del input */}
+            {pathname === "/bot" && !showSuggestion && (
+                <div className="mt-2 space-x-2">
+                    {suggestions.map((suggestion, index) => (
+                        <button
+                            key={index}
+                            type="button"
+                            className="bg-blue-500 text-white px-4 py-2 rounded"
+                            onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                            {suggestion}
+                        </button>
+                    ))}
+                </div>
+            )}
+
             {file && (
                 <div className="flex items-center mb-2">
                     {file.type.startsWith("image/") && (
@@ -138,6 +167,7 @@ function InputBox({ className }) {
                     <span className="text-gray-700">{file.name}</span>
                 </div>
             )}
+
             <form className={`${className} flex items-center justify-center`} onSubmit={handleSubmit}>
                 <textarea
                     ref={inputRef}
@@ -153,18 +183,20 @@ function InputBox({ className }) {
                     <div
                         className="absolute bg-white border border-gray-300 rounded shadow-md p-2 mt-2"
                         style={{ bottom: "60px", left: "10px" }}
-                        onClick={handleSuggestionSelect} // Selecciona la sugerencia al hacer clic
+                        onClick={handleSuggestionSelect} 
                     >
                         <span className="text-gray-700">@bolibot:</span>
                         <div className="text-sm text-gray-500">Usa esta etiqueta para hablar con la IA</div>
                     </div>
                 )}
+
                 {pathname === '/chat' && (
                     <>
                         <ImageUploader setFilePath={setFilePathState} file={file} setFile={setFile} inputSource={inputSource} />
                         <InputRecorder setFilePath={setFilePathState} file={file} setFile={setFile} />
                     </>
                 )}
+                
                 <button
                     type="submit"
                     disabled={isSending}
