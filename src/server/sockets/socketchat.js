@@ -57,27 +57,14 @@ const registerSockets = (socket, io)=> {
                 const filePath = data.img;
 
 
-                // Verificar si es un archivo de audio
-                const isAudio = /uploads\/audio\/.*\.(mp3|wav|ogg)$/i.test(filePath);
                 
-                // Verificar si es una imagen
-                const isImage = /uploads\/.*\.(jpg|jpeg|png|webp)$/i.test(filePath);
                 
-                // Agregar los logs según el tipo de archivo
-                if (isAudio) {
-                    console.log("Es un archivo de audio.");
-                } else if (isImage) {
-                    console.log("Es una imagen.");
-                } else {
-                    console.log("No es ni audio ni imagen.");
-                }
                 
                 const newMessage = await prisma.messages.create({
                     data: {
                         user_id: userId,
                         text: messageText,
-                        ...(isAudio ? { audio_url: filePath } : {}),
-                        ...(isImage ? { image_url: filePath } : {}),
+                    image_url: filePath,
 
                         created_at: new Date(),
                     },
@@ -102,9 +89,8 @@ const registerSockets = (socket, io)=> {
                     username: user.name,
                     major: user.major,
                     date: newMessage.created_at,
-                    ...(isAudio ? { audio_url: filePath } : {}),
-                    ...(isImage ? { image_url: filePath } : {}),
-                    
+                    image_url: filePath,
+
                 };
 
                 console.log("Emitiendo 'new_pregunta' con el mensaje formateado:", formattedMessage);
