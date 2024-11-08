@@ -64,14 +64,15 @@ const ImageUploader = ({ setFilePath, file, setFile, inputSource }) => {
                 className="hidden"
                 id="file-upload"
             />
-             <Image 
-                src={imageicon.src} 
-                alt="Seleccionar imagen" 
-                onClick={() => document.getElementById('file-upload').click()}
-                className="cursor-pointer"
-                style={{ width: '50px', height: '50px' }} // Ajusta el tamaño según sea necesario
-            />
-            {/* Ya no necesitas mostrar la previsualización aquí */}
+          <Image 
+    src={imageicon.src} 
+    alt="Seleccionar imagen" 
+    onClick={() => document.getElementById('file-upload').click()} 
+    className="cursor-pointer"
+    width={50} // Ancho en píxeles
+    height={50} // Alto en píxeles
+/>
+
         </div>
     );
 };
