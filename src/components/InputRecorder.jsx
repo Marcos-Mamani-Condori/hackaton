@@ -1,30 +1,29 @@
+'use client';
 import React, { useState, useEffect } from "react";
+import { useSession } from 'next-auth/react';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 const MySwal = withReactContent(Swal);
 
-function AudioRecorder() {
+function AudioUploader({ setFilePath }) { 
+    const { data: session } = useSession();
     const [isRecording, setIsRecording] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
     const [time, setTime] = useState(0);
-    const [audioUrl, setAudioUrl] = useState(null);
-    const [audioBlob, setAudioBlob] = useState(null);
     const [recorder, setRecorder] = useState(null);
 
     useEffect(() => {
         let intervalId;
 
-        if (isRecording) {
+        if (isRecording && !isPaused) {
             intervalId = setInterval(() => {
                 setTime((prevTime) => prevTime + 1);
             }, 1000);
-        } else {
-            clearInterval(intervalId);
-            setTime(0); // Reinicia el contador cuando no está grabando
         }
 
         return () => clearInterval(intervalId);
-    }, [isRecording]);
+    }, [isRecording, isPaused]);
 
     const startRecording = async () => {
         try {
@@ -32,69 +31,99 @@ function AudioRecorder() {
             const mediaRecorder = new MediaRecorder(stream);
             setRecorder(mediaRecorder);
             setIsRecording(true);
-            setAudioUrl(null); // Reinicia el audioURL para una nueva grabación
+            setTime(0);
+            
             const chunks = [];
             mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-            mediaRecorder.onstop = () => {
+            mediaRecorder.onstop = async () => {
                 const audioBlob = new Blob(chunks, { type: "audio/wav" });
-                setAudioBlob(audioBlob);
-                setAudioUrl(URL.createObjectURL(audioBlob)); // Habilita el botón "Enviar"
+                await handleUpload(audioBlob);
             };
+
             mediaRecorder.start();
         } catch (err) {
             MySwal.fire({
                 title: "Permiso de Micrófono Necesario",
-                text: "Por favor, activa los permisos del micrófono para poder grabar audio.",
+                text: "Por favor, activa los permisos del micrófono para grabar audio.",
                 icon: "warning",
                 confirmButtonText: "Lo acepto",
                 confirmButtonColor: "#3085d6",
             });
-            console.error("Error al obtener permisos de micrófono: ", err);
+            console.error("Error al obtener permisos de micrófono:", err);
+        }
+    };
+
+    const pauseRecording = () => {
+        if (recorder && recorder.state === "recording") {
+            recorder.pause();
+            setIsPaused(true);
+        } else if (recorder && recorder.state === "paused") {
+            recorder.resume();
+            setIsPaused(false);
         }
     };
 
     const stopRecording = () => {
-        setIsRecording(false);
         if (recorder) {
+            setIsRecording(false);
+            setIsPaused(false);
             recorder.stop();
         }
     };
 
-    const handleSend = () => {
-        // Aquí puedes manejar el envío del audio
-        console.log("Audio enviado");
+    const handleUpload = async (audioBlob) => {
+        const formData = new FormData();
+        formData.append('audio', audioBlob);
+        formData.append('inputSource', "audio"); // Enviar siempre inputSource como "audio"
+
+        try {
+            const response = await fetch('/api/upload-audio', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${session?.user?.accessToken}`,
+                },
+                body: formData,
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                console.log("Audio subido correctamente:", data);
+                setFilePath(data.filePath);
+            } else {
+                console.error("Error al subir el audio:", data.error);
+            }
+        } catch (error) {
+            console.error("Error al subir el audio:", error);
+        }
     };
 
     return (
-        <div className="audio-recorder flex flex-row items-center space-y-4 ml-4">
+        <div className="audio-uploader flex items-center space-x-4">
+            {/* Botón de grabación/pausa */}
             <button
-                onClick={isRecording ? stopRecording : startRecording}
-                className={`px-4 py-4 rounded-full flex items-center justify-center ${isRecording ? "bg-red-500" : "bg-green-500"
-                    } text-white`}
+                onClick={isRecording ? pauseRecording : startRecording}
+                className={`px-4 py-2 rounded-full ${isRecording ? "bg-yellow-500" : "bg-green-500"} text-white`}
             >
-                <div
-                    className="w-3 h-3 rounded-full bg-white"
-                ></div>
+                {isRecording && !isPaused ? "Pausar" : isPaused ? "Reanudar" : "Grabar"}
             </button>
 
             {/* Temporizador */}
             {isRecording && (
-                <div className="timer text-lg font-bold pb-4 px-3 flex flex-row  align-text-bottom items-center">
+                <div className="timer text-lg font-bold">
                     {Math.floor(time / 60)}:{String(time % 60).padStart(2, "0")}
                 </div>
             )}
 
-            {/* Botón de Enviar activado solo cuando hay una grabación */}
+            {/* Botón de finalizar */}
             <button
-                onClick={handleSend}
-                disabled={!audioUrl}
-                className={`px-4 py-2 rounded ${audioUrl ? "bg-blue-500" : "bg-gray-300"
-                    } text-white`}
+                onClick={stopRecording}
+                disabled={!isRecording}
+                className="px-4 py-2 rounded bg-red-500 text-white"
             >
-                Enviar
+                Finalizar
             </button>
         </div>
     );
 }
 
-export default AudioRecorder;
+export default AudioUploader;
