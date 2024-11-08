@@ -7,9 +7,9 @@ import ChatGlobalContext from "@/context/ChatGlobalContext";
 import { usePathname } from 'next/navigation';
 import ImageUploader from '@/components/ImageUploader';
 import { useSession } from 'next-auth/react';
-import useSpeechRecognition from "./hook/useSpeechRecognition"; // Importar el hook
+import useSpeechRecognition from "./hook/useSpeechRecognition"; 
 import InputRecorder from '@/components/InputRecorder';
-
+import Image from "next/image";
 function InputBox({ className }) {
     const { data: session } = useSession();
     const pathname = usePathname();
@@ -17,22 +17,22 @@ function InputBox({ className }) {
     // Contextos para los diferentes casos
     const botContext = useContext(BotContext);
     const chatContext = useContext(ChatGlobalContext);
-    const inputSource = pathname === "/bot" ? "inputBot" : "inputChat"; // Determina el source
+    const inputSource = pathname === "/bot" ? "inputBot" : "inputChat"; 
 
     const { setInput, input, isSending, handleSend, setfilePath } = pathname === "/bot" ? botContext : chatContext;
     const { inputRef } = useInputFocus();
+    const [showSuggestion, setShowSuggestion] = useState(false); // Estado para el modal de sugerencia
 
     const [filePath, setFilePathState] = useState(''); 
     const [file, setFile] = useState(null);
 
-    // Usando el hook de reconocimiento de voz
     const {
         text, 
         isListening,
         startListening,
         stopListening,
         hasRecognitionSupport
-    } = useSpeechRecognition(); // Usar el hook de voz
+    } = useSpeechRecognition(); 
 
     useEffect(() => {
         if (inputRef.current && !isSending) {
@@ -46,17 +46,37 @@ function InputBox({ className }) {
         setfilePathSafe(filePath);
         console.log("Valor de filePath pasado en input:", filePath);
     }, [filePath, setfilePathSafe]);
+
     useEffect(() => {
         if (text) {
-            setInput(text); // Actualizar el input con la transcripción de voz
+            setInput(text); 
         }
     }, [text, setInput]);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            handleSubmit(e);
+            if (showSuggestion) {
+                handleSuggestionSelect(); // Selecciona la sugerencia si el modal está abierto
+            } else {
+                handleSubmit(e);
+            }
         }
+    };
+
+    const handleInputChange = (e) => {
+        setInput(e.target.value);
+        if (e.target.value.includes("@") && !e.target.value.includes("@bolibot:")) {
+            setShowSuggestion(true); // Muestra el modal cuando se escribe "@"
+        } else {
+            setShowSuggestion(false); // Oculta el modal si ya se escribió "@bolibot:"
+        }
+    };
+
+    const handleSuggestionSelect = () => {
+        setInput(input + "@bolibot: ");
+        setShowSuggestion(false);
+        inputRef.current.focus(); // Enfoca el input para seguir escribiendo
     };
 
     const handleSubmit = (e) => {
@@ -69,9 +89,9 @@ function InputBox({ className }) {
 
             if (pathname === "/bot") {
                 targetContext = botContext;
-                targetContext.handleSend(input.trim()); // Enviar el mensaje al bot
+                targetContext.handleSend(input.trim()); 
                 console.log("Mensaje enviado al bot:", { text: input.trim() });
-                setInput(''); // Limpiar el input después de enviar
+                setInput(''); 
             } else if (pathname === "/chat" && input.includes("@bolibot:")) {
                 console.log("Detectado @bolibot: en /chat con input:", input);
                 
@@ -84,7 +104,6 @@ function InputBox({ className }) {
                     console.log("El input en /chat está vacío, no se enviará.");
                 }
             } else {
-                // Enviar al chat global
                 targetContext = chatContext;
                 targetContext.handleSend(input, filePath);
                 console.log("Mensaje enviado al chat:", { text: input, img: filePath });
@@ -122,7 +141,7 @@ function InputBox({ className }) {
 
 
     return (
-        <div>
+        <div className="relative">
             {file && (
                 <div className="flex items-center mb-2">
                     {file.type.startsWith("image/") && (
@@ -146,25 +165,30 @@ function InputBox({ className }) {
             <form className={`${className} flex items-center justify-center`} onSubmit={handleSubmit}>
                 <textarea
                     ref={inputRef}
-                    value={input} // Usa directamente el input
-                    onChange={(e) => setInput(e.target.value)}
+                    value={input} 
+                    onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
                     placeholder={isSending ? "Esperando respuesta..." : "Escribe un mensaje..."}
                     disabled={isSending}
                     rows={1}
                     className="flex-1 px-4 py-2 border border-gray-600 rounded focus:outline-none focus:ring focus:border-blue-300 resize-none"
                 />
-                
+                {showSuggestion && (
+                    <div
+                        className="absolute bg-white border border-gray-300 rounded shadow-md p-2 mt-2"
+                        style={{ bottom: "60px", left: "10px" }}
+                        onClick={handleSuggestionSelect} // Selecciona la sugerencia al hacer clic
+                    >
+                        <span className="text-gray-700">@bolibot:</span>
+                        <div className="text-sm text-gray-500">Usa esta etiqueta para hablar con la IA</div>
+                    </div>
+                )}
                 {pathname === '/chat' && (
                     <>
-                    <ImageUploader setFilePath={setFilePathState} file={file} setFile={setFile} inputSource={inputSource} />
-
-                       <InputRecorder  setFilePath={setFilePathState} file={file} setFile={setFile}/>
+                        <ImageUploader setFilePath={setFilePathState} file={file} setFile={setFile} inputSource={inputSource} />
+                        <InputRecorder setFilePath={setFilePathState} file={file} setFile={setFile} />
                     </>
-
-                    
                 )}
-                
                 
                 <button
                     type="submit"
@@ -173,7 +197,6 @@ function InputBox({ className }) {
                 >
                     Enviar
                 </button>
-
                 {pathname === '/bot' && hasRecognitionSupport && (
                     <button
                         type="button"
