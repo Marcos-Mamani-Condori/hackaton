@@ -4,13 +4,17 @@ import { useContext, useState } from 'react';
 import Image from 'next/image';
 import user_icon from '@/public/static/user_icon.png';
 import bell_icon from '@/public/static/bell_icon.svg';
+import accesibility_icon from "@/public/static/accesibility.svg";
 import RegisterModal from '@/components/RegisterModal';
 import { usePathname } from 'next/navigation';
 import ModalContext from '@/context/ModalContext';
+import AccesibilityContext from '@/context/AccesibilityContext';
 import { signOut, useSession } from 'next-auth/react';
 
 const Header = ({ className }) => {
     const { isRegisterModalOpen, setIsRegisterModalOpen, setIsLoged } = useContext(ModalContext);
+    const {handleSpeak,accesibility,setAccesibility}=useContext(AccesibilityContext);
+    
     const { data: session } = useSession();
     const [isNotificationOpen, setIsNotificationOpen] = useState(false); // New state for notification box
 
@@ -26,6 +30,7 @@ const Header = ({ className }) => {
     const toggleNotificationBox = () => {
         setIsNotificationOpen(!isNotificationOpen); // Toggle notification box visibility
     };
+    
 
     const pathname = usePathname();
     const pageTitles = {
@@ -85,6 +90,21 @@ const Header = ({ className }) => {
                         <p className="text-gray-700">No new notifications</p>
                     </div>
                 )}
+            </div>
+
+            <div className="absolute right-12 md:right-32">
+                <button onClick={()=>setAccesibility(!accesibility)} > 
+                    <Image 
+                        src={accesibility_icon} 
+                        alt="Notification bell icon" 
+                        width={32} 
+                        height={32} 
+                        className={`${accesibility? "bg-emerald-100":""} `} 
+                        loading="eager"
+                        onMouseEnter={()=>{if (!accesibility) handleSpeak("Si das click se activara el modo de disponibilidad para ciegos")}}
+                        onClick={()=>{if(!accesibility) handleSpeak("Modo disponibilidad para ciegos activado")}}   
+                    /> 
+                </button>
             </div>
 
             {/* Register Modal */}
