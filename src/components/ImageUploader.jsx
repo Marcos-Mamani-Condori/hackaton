@@ -3,16 +3,15 @@ import React from "react";
 import { useSession } from 'next-auth/react';
 import imageicon from '@/public/static/more.png';
 import Image from "next/image";
-const ImageUploader = ({ setFilePath, file, setFile, inputSource }) => { 
+const ImageUploader = ({ setFilePath, file, setFile, inputSource }) => {
     const { data: session } = useSession();
 
     const handleFileChange = async (e) => {
         const selectedFile = e.target.files[0];
-        if(inputSource=="inputChat" || inputSource=="inputBot")
-        {setFile(selectedFile);}
+        if (inputSource == "inputChat" || inputSource == "inputBot") { setFile(selectedFile); }
         if (selectedFile) {
             console.log("Archivo seleccionado:", selectedFile);
-            const uploadedFilePath = await handleUpload(selectedFile); 
+            const uploadedFilePath = await handleUpload(selectedFile);
             if (uploadedFilePath) {
                 console.log("Ruta del archivo devuelta:", uploadedFilePath);
                 setFilePath(uploadedFilePath);
@@ -44,7 +43,7 @@ const ImageUploader = ({ setFilePath, file, setFile, inputSource }) => {
             const data = await response.json();
             if (response.ok) {
                 console.log('Imagen subida correctamente:', data);
-                return data.filePath; 
+                return data.filePath;
             } else {
                 console.error('Error al subir la imagen:', data.error);
                 return null;
@@ -57,21 +56,21 @@ const ImageUploader = ({ setFilePath, file, setFile, inputSource }) => {
 
     return (
         <div>
-            <input 
-                type="file" 
-                onChange={handleFileChange} 
-                accept="image/*" 
+            <input
+                type="file"
+                onChange={handleFileChange}
+                accept="image/*"
                 className="hidden"
                 id="file-upload"
             />
-          <Image 
-    src={imageicon.src} 
-    alt="Seleccionar imagen" 
-    onClick={() => document.getElementById('file-upload').click()} 
-    className="cursor-pointer"
-    width={80} 
-    height={80} 
-/>
+            <Image
+                src={imageicon.src}
+                alt="Seleccionar imagen"
+                onClick={() => document.getElementById('file-upload').click()}
+                className=" mx-2 cursor-pointer bg-gray-500 rounded-lg"
+                width={40}
+                height={40}
+            />
 
         </div>
     );

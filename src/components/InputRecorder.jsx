@@ -106,26 +106,29 @@ function InputRecorder({ setFilePath, file, setFile }) {
             {/* Botón de grabación/pausa */}
             <button
                 onClick={isRecording ? pauseRecording : startRecording}
-                className={`px-4 py-2 rounded-full ${isRecording ? "bg-yellow-500" : "bg-green-500"} text-white`}
+                className={`px-2 py-2 rounded-full ${isRecording ? "bg-yellow-500" : "bg-green-500"} text-white`}
             >
-                {isRecording && !isPaused ? "Pausar" : isPaused ? "Reanudar" : "Grabar"}
+                {isRecording && !isPaused ? "⏸" : isPaused ? "▶" : "Grabar"}
             </button>
 
             {/* Temporizador */}
             {isRecording && (
-                <div className="timer text-lg font-bold">
+                <>
+                <div className="timer">
                     {Math.floor(time / 60)}:{String(time % 60).padStart(2, "0")}
                 </div>
-            )}
-
-            {/* Botón de finalizar */}
+                {/* Botón de finalizar */}
             <button
                 onClick={stopRecording}
                 disabled={!isRecording}
-                className="px-4 py-2 rounded bg-red-500 text-white"
+                className="px-2 py-2 rounded bg-red-500 text-white"
             >
-                Finalizar
+                🟥
             </button>
+            </>
+            )}
+
+            
 
             {/* Reproductor de audio para previsualización */}
          

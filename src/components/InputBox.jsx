@@ -74,7 +74,8 @@ function InputBox({ className }) {
     };
 
     const handleSuggestionSelect = () => {
-        setInput(input + "@bolibot: ");
+        //setInput(input + "@bolibot: ");
+        setInput(input + "bolibot: ");
         setShowSuggestion(false);
         inputRef.current.focus(); // Enfoca el input para seguir escribiendo
     };
@@ -141,9 +142,9 @@ function InputBox({ className }) {
 
 
     return (
-        <div className="relative">
+        <div className="relative w-full max-w-full overflow-hidden px-2">
             {file && (
-                <div className="flex items-center mb-2">
+                <div className="flex items-center mb-2 w-full max-w-full overflow-hidden">
                     {file.type.startsWith("image/") && (
                         <Image
                             src={URL.createObjectURL(file)}
@@ -154,30 +155,30 @@ function InputBox({ className }) {
                         />
                     )}
                     {file.type.startsWith("audio/") && (
-                        <audio controls className="mr-2">
+                        <audio controls className="mr-2 max-w-full">
                             <source src={URL.createObjectURL(file)} type={file.type} />
                             Tu navegador no soporta la reproducción de audio.
                         </audio>
                     )}
-                    <span className="text-gray-700">{file.name}</span>
+                    <span className="text-gray-700 truncate max-w-full">{file.name}</span>
                 </div>
             )}
-            <form className={`${className} flex items-center justify-center`} onSubmit={handleSubmit}>
+            <form className={`${className} flex items-center justify-center w-full`} onSubmit={handleSubmit}>
                 <textarea
                     ref={inputRef}
-                    value={input} 
+                    value={input}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
                     placeholder={isSending ? "Esperando respuesta..." : "Escribe un mensaje..."}
                     disabled={isSending}
                     rows={1}
-                    className="flex-1 px-4 py-2 border border-gray-600 rounded focus:outline-none focus:ring focus:border-blue-300 resize-none"
+                    className="flex-1 px-2 py-1 border border-gray-600 rounded focus:outline-none focus:ring focus:border-blue-300 resize-none w-full max-w-full"
                 />
                 {showSuggestion && (
                     <div
-                        className="absolute bg-white border border-gray-300 rounded shadow-md p-2 mt-2"
+                        className="absolute bg-white border border-gray-300 rounded shadow-md p-2 mt-2 max-w-full overflow-hidden"
                         style={{ bottom: "60px", left: "10px" }}
-                        onClick={handleSuggestionSelect} // Selecciona la sugerencia al hacer clic
+                        onClick={handleSuggestionSelect}
                     >
                         <span className="text-gray-700">@bolibot:</span>
                         <div className="text-sm text-gray-500">Usa esta etiqueta para hablar con la IA</div>
@@ -210,6 +211,5 @@ function InputBox({ className }) {
             </form>
         </div>
     );
-}
-
+}    
 export default InputBox;
