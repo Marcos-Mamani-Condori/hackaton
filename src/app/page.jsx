@@ -47,7 +47,6 @@ const Home = () => {
                 <div className="flex-1 max-h-[300px] overflow-y-auto">
                     <ActivityCalendar activities={activities} /> 
                 </div>
-                <a href="/voice">Clikeame</a>
             </div>
                 
                 <br/>

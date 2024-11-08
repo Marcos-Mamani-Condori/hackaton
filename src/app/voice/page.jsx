@@ -1,24 +1,29 @@
-'use client';
+'use client'
 import { useState } from "react";
-import { useSpeechRecognition } from "react-speech-kit";
-const Voice=()=>{
-    const [value,setValue]=useState("");
-    const { listen, listening, stop } = useSpeechRecognition({
-        onResult: (result) => {
-          setValue(result);
-        },
-      });
-    return(
+import useSpeechRecognition from "@/components/hook/useSpeechRecognition";
+
+const Voice = () => {
+    const {
+        text,
+        isListening,
+        startListening,
+        hasRecognitionSupport,
+        stopListening
+    } = useSpeechRecognition();
+    
+    return (
         <div>
-            <textarea
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-            />
-            <button onMouseDown={listen} onMouseUp={stop}>
-            🎤
-            </button>
-            {listening && <div>Go ahead I'm listening</div>}
+            {hasRecognitionSupport?(
+                <>
+                    <div>
+                        <button onClick={startListening}>Click me!</button>
+                    </div>
+                    {isListening?<div>Your browser is currently listening</div>:null}
+                    {text}
+                </>
+            ):(<div>Your browser has no speech recognition</div>)}
         </div>
-    )
+    );
 }
+
 export default Voice;

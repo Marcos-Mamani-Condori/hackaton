@@ -7,11 +7,17 @@ import ChatGlobalContext from "@/context/ChatGlobalContext";
 import { usePathname } from 'next/navigation'; 
 import ImageUploader from '@/components/ImageUploader';
 import { useSession } from 'next-auth/react';
-import { useSpeechRecognition } from "react-speech-kit";
+import useSpeechRecognition from "./hook/useSpeechRecognition";
 
 function InputBox({ className }) {
     const { data: session } = useSession();
-
+    const {
+        text, 
+        isListening,
+        startListening,
+        stopListening,
+        hasRecognitionSupport
+    } = useSpeechRecognition();
     const pathname = usePathname();
     const contexts = pathname === "/bot" ? BotContext : ChatGlobalContext;
     const inputSource = pathname === "/bot" ? "inputBot" : "inputChat"; // Determina el source
@@ -32,13 +38,18 @@ function InputBox({ className }) {
         console.log("Valor de filePath pasado en input:", filePath);
     }, [filePath]);
 
+    useEffect(() => {
+        if (text) {
+            setInput(text);
+        }
+    }, [text, setInput]);
+
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             handleSubmit(e);
         }
     };
-
     const handleSubmit = (e) => {
         e.preventDefault(); 
         console.log("Enviando input:", input);
@@ -54,11 +65,7 @@ function InputBox({ className }) {
             console.log("El input está vacío, no se enviará.");
         }
     };
-    const { listen,stop } = useSpeechRecognition({
-        onResult: (result) => {
-          setInput(result);
-        },
-    });
+    
 
     return (
         <div>
@@ -98,8 +105,8 @@ function InputBox({ className }) {
                     <button
                     type="submit"
                     className={`text-white px-4 ml-2 py-2 rounded bg-blue-500 hover:bg-blue-600`}
-                    onClick={listen}
-                    onMouseLeave={stop}
+                    onClick={startListening}
+                    onMouseLeave={stopListening}
                     >
                         🎤
                     </button>
